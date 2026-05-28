@@ -1,0 +1,32 @@
+aid: urantia-papers
+name: Urantia Papers
+description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
+url: https://urantia.dev
+specificationVersion: '0.20'
+created: '2026-05-28'
+modified: '2026-05-28'
+x-source: public-apis/public-apis
+x-category: "Books"
+x-tier: 3
+x-tier-reason: bulk-registered-from-public-apis
+tags:
+  - Books
+  - Public APIs
+apis:
+  - name: Urantia Papers
+    description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
+    humanURL: https://urantia.dev
+    baseURL: https://urantia.dev
+    tags:
+      - Books
+    properties:
+      - type: Documentation
+        url: https://urantia.dev
+common:
+  - type: Website
+    url: https://urantia.dev
+  - type: PublicAPIsListing
+    url: https://github.com/public-apis/public-apis
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
