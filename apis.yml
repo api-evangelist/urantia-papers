@@ -23,6 +23,8 @@ apis:
       - type: Documentation
         url: https://urantia.dev
 common:
+  - type: DomainSecurity
+    url: security/urantia-papers-domain-security.yml
   - type: Website
     url: https://urantia.dev
   - type: PublicAPIsListing
