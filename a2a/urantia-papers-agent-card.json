@@ -1,0 +1,38 @@
+{
+  "name": "Urantia.dev",
+  "url": "https://urantia.dev/",
+  "version": "1.0.0",
+  "protocolVersion": "0.3",
+  "preferredTransport": "HTTP+JSON",
+  "supportedInterfaces": [
+    {
+      "url": "https://urantia.dev/",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "0.3"
+    }
+  ],
+  "provider": {
+    "url": "https://urantia.dev/",
+    "organization": "Urantia.dev"
+  },
+  "documentationUrl": "https://urantia.dev/",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "urantia-papers-api",
+      "name": "urantia-papers-api",
+      "description": "Access and search the Urantia Book via REST API. Use when retrieving paragraphs, searching text, browsing papers, getting audio narration, or building RAG pipelines over the Urantia Papers.",
+      "tags": [],
+      "url": "https://urantia.dev/.well-known/agent-skills/urantia-papers-api/skill.md"
+    }
+  ]
+}
