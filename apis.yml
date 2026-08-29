@@ -2,6 +2,17 @@ aid: urantia-papers
 name: Urantia Papers
 description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
 url: https://urantia.dev
+deliveryModel:
+  model: unknown
+  open_source: false
+  commercial: false
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - none
+  generated: '2026-08-28'
+  method: derived
 specificationVersion: '0.23'
 created: '2026-05-28'
 modified: '2026-05-28'
