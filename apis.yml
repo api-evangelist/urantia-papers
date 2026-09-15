@@ -56,6 +56,8 @@ common:
     url: https://urantia.dev
   - type: PublicAPIsListing
     url: https://github.com/public-apis/public-apis
+  - type: Support
+    url: https://urantia.dev/support
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
