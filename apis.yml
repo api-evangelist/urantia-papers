@@ -35,11 +35,11 @@ x-tier-reason: bulk-registered-from-public-apis
 tags:
   - Books
   - Public APIs
+  - A2A
 apis:
   - name: Urantia Papers
     description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
     humanURL: https://urantia.dev
-    baseURL: https://urantia.dev
     tags:
       - Books
     properties:
@@ -61,3 +61,10 @@ common:
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://urantia.dev/.well-known/agent-card.json"
+  grade: "conformant"
+  protocol_version: "0.3"
+  control: 404
