@@ -1,6 +1,6 @@
 aid: urantia-papers
 name: Urantia Papers
-description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
+description: "A read-only REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible. The content endpoints are read-only and need no key."
 url: https://urantia.dev
 deliveryModel:
   model: unknown
@@ -38,13 +38,30 @@ tags:
   - A2A
 apis:
   - name: Urantia Papers
-    description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
-    humanURL: https://urantia.dev
+    description: "A read-only REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible. The content endpoints are read-only and need no key."
+    humanURL: https://docs.urantia.dev
+    baseURL: https://api.urantia.dev
     tags:
       - Books
     properties:
+      - type: OpenAPI
+        url: https://api.urantia.dev/openapi.json
       - type: Documentation
-        url: https://urantia.dev
+        url: https://docs.urantia.dev
+      - type: APIReference
+        url: https://docs.urantia.dev/api-reference/introduction
+      - type: GettingStarted
+        url: https://docs.urantia.dev/quickstart
+      - type: Authentication
+        url: https://docs.urantia.dev/api-reference/introduction#authentication
+      - type: RateLimits
+        url: https://docs.urantia.dev/api-reference/introduction#rate-limiting
+      - type: MCPServer
+        url: https://api.urantia.dev/mcp
+      - type: PostmanCollection
+        url: https://www.postman.com/urantia-dev/urantia-papers
+      - type: SDKs
+        url: https://docs.urantia.dev/sdks/overview
 common:
   - type: AgentCard
     url: a2a/urantia-papers-a2a.yml
@@ -57,7 +74,29 @@ common:
   - type: PublicAPIsListing
     url: https://github.com/public-apis/public-apis
   - type: Support
-    url: https://urantia.dev/support
+    url: https://docs.urantia.dev/help
+  - type: ChangeLog
+    url: https://docs.urantia.dev/changelog
+  - type: StatusPage
+    url: https://status.urantia.dev
+  - type: TermsOfService
+    url: https://docs.urantia.dev/terms-of-service
+  - type: PrivacyPolicy
+    url: https://docs.urantia.dev/privacy-policy
+  - type: License
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+  - type: GitHubOrganization
+    url: https://github.com/urantia-hub
+  - type: GitHubRepository
+    url: https://github.com/urantia-hub/urantia-dev-api
+  - type: LLMsTxt
+    url: https://docs.urantia.dev/llms.txt
+  - type: AgentSkills
+    url: https://github.com/urantia-hub/urantia-papers-claude-code-plugin/tree/main/skills
+  - type: APICatalog
+    url: https://api.urantia.dev/.well-known/api-catalog
+  - type: ContentSignal
+    url: https://api.urantia.dev/robots.txt
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
