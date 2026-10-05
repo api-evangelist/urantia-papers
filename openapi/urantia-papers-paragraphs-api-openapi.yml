@@ -1,0 +1,1495 @@
+openapi: 3.2.0
+info:
+  title: Urantia Papers Paragraphs API
+  version: 1.0.0
+  description: 'An API and MCP server for the Urantia Papers. Structured access to all 197 papers and more than 14,500 paragraphs, with full-text and semantic search, named entities, Bible cross-references, and audio. No key needed. Docs: https://docs.urantia.dev'
+  termsOfService: https://docs.urantia.dev/terms-of-service
+  contact:
+    name: urantia.dev
+    url: https://docs.urantia.dev/help
+    email: kelson@urantia.dev
+  license:
+    name: MIT
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+servers:
+- url: https://api.urantia.dev
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+security: []
+tags:
+- name: Paragraphs
+paths:
+  /paragraphs/random:
+    get:
+      operationId: getRandomParagraph
+      tags:
+      - Paragraphs
+      summary: Get a random paragraph
+      description: 'Returns a single random paragraph from the Urantia Book. Useful for daily quotes or exploration.
+
+
+        Response includes a `navigation` envelope with the previous and next paragraph refs (within the same paper, ordered by sortId). Refs are `null` at paper boundaries.
+
+
+        Use `?include=entities` to include typed entity mentions in the response.
+
+
+        Use `?minLength=N` and/or `?maxLength=N` to filter by character count of the paragraph text.'
+      parameters:
+      - schema:
+          type: string
+        required: false
+        name: include
+        in: query
+      - schema:
+          type: string
+          enum:
+          - default
+          - rag
+          default: default
+        required: false
+        name: format
+        in: query
+      - schema:
+          type: string
+          enum:
+          - eng
+          - es
+          - fr
+          - pt
+          - de
+          - ko
+          default: eng
+        required: false
+        name: lang
+        in: query
+      - schema:
+          type: integer
+          minimum: 1
+        required: false
+        name: minLength
+        in: query
+      - schema:
+          type: integer
+          minimum: 1
+        required: false
+        name: maxLength
+        in: query
+      responses:
+        '200':
+          description: A random paragraph
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      standardReferenceId:
+                        type: string
+                      sortId:
+                        type: string
+                      paperId:
+                        type: string
+                      sectionId:
+                        type:
+                        - string
+                        - 'null'
+                      partId:
+                        type: string
+                      paperTitle:
+                        type: string
+                      sectionTitle:
+                        type:
+                        - string
+                        - 'null'
+                      paragraphId:
+                        type: string
+                      text:
+                        type: string
+                      htmlText:
+                        type: string
+                      language:
+                        type: string
+                      labels:
+                        type:
+                        - array
+                        - 'null'
+                        items:
+                          type: string
+                      audio:
+                        type:
+                        - object
+                        - 'null'
+                        additionalProperties:
+                          type: object
+                          additionalProperties:
+                            type: object
+                            properties:
+                              format:
+                                type: string
+                              url:
+                                type: string
+                              duration:
+                                type: number
+                              bitrate:
+                                type: number
+                              fileSize:
+                                type: number
+                            required:
+                            - format
+                            - url
+                      entities:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            type:
+                              type: string
+                              enum:
+                              - being
+                              - place
+                              - order
+                              - race
+                              - religion
+                              - concept
+                          required:
+                          - id
+                          - name
+                          - type
+                      bibleParallels:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            chunkId:
+                              type: string
+                            reference:
+                              type: string
+                            bookCode:
+                              type: string
+                            chapter:
+                              type: integer
+                            verseStart:
+                              type: integer
+                            verseEnd:
+                              type: integer
+                            text:
+                              type: string
+                            similarity:
+                              type: number
+                            rank:
+                              type: integer
+                            source:
+                              type: string
+                            embeddingModel:
+                              type: string
+                          required:
+                          - chunkId
+                          - reference
+                          - bookCode
+                          - chapter
+                          - verseStart
+                          - verseEnd
+                          - text
+                          - similarity
+                          - rank
+                          - source
+                          - embeddingModel
+                      urantiaParallels:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            standardReferenceId:
+                              type: string
+                            paperId:
+                              type: string
+                            paperTitle:
+                              type: string
+                            sectionTitle:
+                              type:
+                              - string
+                              - 'null'
+                            text:
+                              type: string
+                            similarity:
+                              type: number
+                            rank:
+                              type: integer
+                            source:
+                              type: string
+                            embeddingModel:
+                              type: string
+                          required:
+                          - id
+                          - standardReferenceId
+                          - paperId
+                          - paperTitle
+                          - sectionTitle
+                          - text
+                          - similarity
+                          - rank
+                          - source
+                          - embeddingModel
+                    required:
+                    - id
+                    - standardReferenceId
+                    - sortId
+                    - paperId
+                    - sectionId
+                    - partId
+                    - paperTitle
+                    - sectionTitle
+                    - paragraphId
+                    - text
+                    - htmlText
+                    - labels
+                    - audio
+                  navigation:
+                    type: object
+                    properties:
+                      prev:
+                        type:
+                        - string
+                        - 'null'
+                      next:
+                        type:
+                        - string
+                        - 'null'
+                    required:
+                    - prev
+                    - next
+                required:
+                - data
+              example:
+                data:
+                  id: 2:44.3.4
+                  standardReferenceId: '44:3.4'
+                  sortId: 2.044.003.004
+                  paperId: '44'
+                  sectionId: '3'
+                  partId: '2'
+                  paperTitle: The Celestial Artisans
+                  sectionTitle: The Divine Builders
+                  paragraphId: '4'
+                  text: 3. The play builders. Enormous edifices are utilized during the seasons of rest, what mortals would call recreation and, in a certain sense, play. Provision is made for a suitable setting for the reversion directors, the humorists of the morontia worlds, those transition spheres whereon takes place the training of ascendant beings but recently removed from the evolutionary planets. Even the higher spirits engage in a certain form of reminiscent humor during their periods of spiritual recharging.
+                  htmlText: <span class="urantia-dev-pb-4">3. <em>The play builders.</em> Enormous edifices are utilized during the seasons of rest, what mortals would call recreation and, in a certain sense, play. Provision is made for a suitable setting for the reversion directors, the humorists of the morontia worlds, those transition spheres whereon takes place the training of ascendant beings but recently removed from the evolutionary planets. Even the higher spirits engage in a certain form of reminiscent humor during their periods of spiritual recharging.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-2:44.3.4.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 31.8
+                        fileSize: 636000
+                navigation:
+                  prev: '44:3.3'
+                  next: '44:3.5'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid filter criteria
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+  /paragraphs/{ref}:
+    get:
+      operationId: getParagraph
+      tags:
+      - Paragraphs
+      summary: Get a paragraph by reference
+      description: 'Look up a paragraph using any of three ID formats:
+
+        - **globalId**: "1:2.0.1" (partId:paperId.sectionId.paragraphId)
+
+        - **standardReferenceId**: "2:0.1" (paperId:sectionId.paragraphId)
+
+        - **paperSectionParagraphId**: "2.0.1" (paperId.sectionId.paragraphId)
+
+
+        The format is auto-detected from the reference string.
+
+
+        Response includes a `navigation` envelope with the previous and next paragraph refs (within the same paper, ordered by sortId). Refs are `null` at paper boundaries.
+
+
+        Use `?include=entities` to include typed entity mentions in the response.'
+      parameters:
+      - schema:
+          type: string
+        required: true
+        name: ref
+        in: path
+        example: '2:5.1'
+      - schema:
+          type: string
+        required: false
+        name: include
+        in: query
+      - schema:
+          type: string
+          enum:
+          - default
+          - rag
+          default: default
+        required: false
+        name: format
+        in: query
+      - schema:
+          type: string
+          enum:
+          - eng
+          - es
+          - fr
+          - pt
+          - de
+          - ko
+          default: eng
+        required: false
+        name: lang
+        in: query
+      responses:
+        '200':
+          description: The paragraph
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      standardReferenceId:
+                        type: string
+                      sortId:
+                        type: string
+                      paperId:
+                        type: string
+                      sectionId:
+                        type:
+                        - string
+                        - 'null'
+                      partId:
+                        type: string
+                      paperTitle:
+                        type: string
+                      sectionTitle:
+                        type:
+                        - string
+                        - 'null'
+                      paragraphId:
+                        type: string
+                      text:
+                        type: string
+                      htmlText:
+                        type: string
+                      language:
+                        type: string
+                      labels:
+                        type:
+                        - array
+                        - 'null'
+                        items:
+                          type: string
+                      audio:
+                        type:
+                        - object
+                        - 'null'
+                        additionalProperties:
+                          type: object
+                          additionalProperties:
+                            type: object
+                            properties:
+                              format:
+                                type: string
+                              url:
+                                type: string
+                              duration:
+                                type: number
+                              bitrate:
+                                type: number
+                              fileSize:
+                                type: number
+                            required:
+                            - format
+                            - url
+                      entities:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            type:
+                              type: string
+                              enum:
+                              - being
+                              - place
+                              - order
+                              - race
+                              - religion
+                              - concept
+                          required:
+                          - id
+                          - name
+                          - type
+                      bibleParallels:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            chunkId:
+                              type: string
+                            reference:
+                              type: string
+                            bookCode:
+                              type: string
+                            chapter:
+                              type: integer
+                            verseStart:
+                              type: integer
+                            verseEnd:
+                              type: integer
+                            text:
+                              type: string
+                            similarity:
+                              type: number
+                            rank:
+                              type: integer
+                            source:
+                              type: string
+                            embeddingModel:
+                              type: string
+                          required:
+                          - chunkId
+                          - reference
+                          - bookCode
+                          - chapter
+                          - verseStart
+                          - verseEnd
+                          - text
+                          - similarity
+                          - rank
+                          - source
+                          - embeddingModel
+                      urantiaParallels:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            standardReferenceId:
+                              type: string
+                            paperId:
+                              type: string
+                            paperTitle:
+                              type: string
+                            sectionTitle:
+                              type:
+                              - string
+                              - 'null'
+                            text:
+                              type: string
+                            similarity:
+                              type: number
+                            rank:
+                              type: integer
+                            source:
+                              type: string
+                            embeddingModel:
+                              type: string
+                          required:
+                          - id
+                          - standardReferenceId
+                          - paperId
+                          - paperTitle
+                          - sectionTitle
+                          - text
+                          - similarity
+                          - rank
+                          - source
+                          - embeddingModel
+                    required:
+                    - id
+                    - standardReferenceId
+                    - sortId
+                    - paperId
+                    - sectionId
+                    - partId
+                    - paperTitle
+                    - sectionTitle
+                    - paragraphId
+                    - text
+                    - htmlText
+                    - labels
+                    - audio
+                  navigation:
+                    type: object
+                    properties:
+                      prev:
+                        type:
+                        - string
+                        - 'null'
+                      next:
+                        type:
+                        - string
+                        - 'null'
+                    required:
+                    - prev
+                    - next
+                required:
+                - data
+              example:
+                data:
+                  id: 1:2.5.1
+                  standardReferenceId: '2:5.1'
+                  sortId: 1.002.005.001
+                  paperId: '2'
+                  sectionId: '5'
+                  partId: '1'
+                  paperTitle: The Nature of God
+                  sectionTitle: The Love of God
+                  paragraphId: '1'
+                  text: “God is love”; therefore his only personal attitude towards the affairs of the universe is always a reaction of divine affection. The Father loves us sufficiently to bestow his life upon us. “He makes his sun to rise on the evil and on the good and sends rain on the just and on the unjust.”
+                  htmlText: <span class="urantia-dev-pb-4">“God is love”; therefore his only personal attitude towards the affairs of the universe is always a reaction of divine affection. The Father loves us sufficiently to bestow his life upon us. “He makes his sun to rise on the evil and on the good and sends rain on the just and on the unjust.”</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:2.5.1.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 18
+                        fileSize: 360960
+                      onyx:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/onyx/tts-1-hd-onyx-1:2.5.1.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 18.4
+                        fileSize: 367680
+                    gpt-4o-mini-tts:
+                      cedar:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:2.5.1.mp3
+                        format: mp3
+                        bitrate: 192
+                        duration: 18.1
+                        fileSize: 434511
+                navigation:
+                  prev: '2:4.5'
+                  next: '2:5.2'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid reference format
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '404':
+          description: Paragraph not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+  /paragraphs/{ref}/context:
+    get:
+      operationId: getParagraphContext
+      tags:
+      - Paragraphs
+      summary: Get a paragraph with surrounding context
+      description: 'Returns the target paragraph along with N paragraphs before and after it (ordered by sort_id).
+
+        Useful for AI agents doing RAG that need surrounding context for better understanding.
+
+        The `window` query parameter controls how many paragraphs before/after to include (default: 2, max: 10).
+
+
+        Use `?include=entities` to include typed entity mentions in the response.'
+      parameters:
+      - schema:
+          type: string
+        required: true
+        name: ref
+        in: path
+        example: '2:5.1'
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 2
+        required: false
+        name: window
+        in: query
+      - schema:
+          type: string
+        required: false
+        name: include
+        in: query
+      - schema:
+          type: string
+          enum:
+          - default
+          - rag
+          default: default
+        required: false
+        name: format
+        in: query
+      - schema:
+          type: string
+          enum:
+          - eng
+          - es
+          - fr
+          - pt
+          - de
+          - ko
+          default: eng
+        required: false
+        name: lang
+        in: query
+      responses:
+        '200':
+          description: Paragraph with context
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      target:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          standardReferenceId:
+                            type: string
+                          sortId:
+                            type: string
+                          paperId:
+                            type: string
+                          sectionId:
+                            type:
+                            - string
+                            - 'null'
+                          partId:
+                            type: string
+                          paperTitle:
+                            type: string
+                          sectionTitle:
+                            type:
+                            - string
+                            - 'null'
+                          paragraphId:
+                            type: string
+                          text:
+                            type: string
+                          htmlText:
+                            type: string
+                          language:
+                            type: string
+                          labels:
+                            type:
+                            - array
+                            - 'null'
+                            items:
+                              type: string
+                          audio:
+                            type:
+                            - object
+                            - 'null'
+                            additionalProperties:
+                              type: object
+                              additionalProperties:
+                                type: object
+                                properties:
+                                  format:
+                                    type: string
+                                  url:
+                                    type: string
+                                  duration:
+                                    type: number
+                                  bitrate:
+                                    type: number
+                                  fileSize:
+                                    type: number
+                                required:
+                                - format
+                                - url
+                          entities:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                  enum:
+                                  - being
+                                  - place
+                                  - order
+                                  - race
+                                  - religion
+                                  - concept
+                              required:
+                              - id
+                              - name
+                              - type
+                          bibleParallels:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                chunkId:
+                                  type: string
+                                reference:
+                                  type: string
+                                bookCode:
+                                  type: string
+                                chapter:
+                                  type: integer
+                                verseStart:
+                                  type: integer
+                                verseEnd:
+                                  type: integer
+                                text:
+                                  type: string
+                                similarity:
+                                  type: number
+                                rank:
+                                  type: integer
+                                source:
+                                  type: string
+                                embeddingModel:
+                                  type: string
+                              required:
+                              - chunkId
+                              - reference
+                              - bookCode
+                              - chapter
+                              - verseStart
+                              - verseEnd
+                              - text
+                              - similarity
+                              - rank
+                              - source
+                              - embeddingModel
+                          urantiaParallels:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                standardReferenceId:
+                                  type: string
+                                paperId:
+                                  type: string
+                                paperTitle:
+                                  type: string
+                                sectionTitle:
+                                  type:
+                                  - string
+                                  - 'null'
+                                text:
+                                  type: string
+                                similarity:
+                                  type: number
+                                rank:
+                                  type: integer
+                                source:
+                                  type: string
+                                embeddingModel:
+                                  type: string
+                              required:
+                              - id
+                              - standardReferenceId
+                              - paperId
+                              - paperTitle
+                              - sectionTitle
+                              - text
+                              - similarity
+                              - rank
+                              - source
+                              - embeddingModel
+                        required:
+                        - id
+                        - standardReferenceId
+                        - sortId
+                        - paperId
+                        - sectionId
+                        - partId
+                        - paperTitle
+                        - sectionTitle
+                        - paragraphId
+                        - text
+                        - htmlText
+                        - labels
+                        - audio
+                      before:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            standardReferenceId:
+                              type: string
+                            sortId:
+                              type: string
+                            paperId:
+                              type: string
+                            sectionId:
+                              type:
+                              - string
+                              - 'null'
+                            partId:
+                              type: string
+                            paperTitle:
+                              type: string
+                            sectionTitle:
+                              type:
+                              - string
+                              - 'null'
+                            paragraphId:
+                              type: string
+                            text:
+                              type: string
+                            htmlText:
+                              type: string
+                            language:
+                              type: string
+                            labels:
+                              type:
+                              - array
+                              - 'null'
+                              items:
+                                type: string
+                            audio:
+                              type:
+                              - object
+                              - 'null'
+                              additionalProperties:
+                                type: object
+                                additionalProperties:
+                                  type: object
+                                  properties:
+                                    format:
+                                      type: string
+                                    url:
+                                      type: string
+                                    duration:
+                                      type: number
+                                    bitrate:
+                                      type: number
+                                    fileSize:
+                                      type: number
+                                  required:
+                                  - format
+                                  - url
+                            entities:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  type:
+                                    type: string
+                                    enum:
+                                    - being
+                                    - place
+                                    - order
+                                    - race
+                                    - religion
+                                    - concept
+                                required:
+                                - id
+                                - name
+                                - type
+                            bibleParallels:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  chunkId:
+                                    type: string
+                                  reference:
+                                    type: string
+                                  bookCode:
+                                    type: string
+                                  chapter:
+                                    type: integer
+                                  verseStart:
+                                    type: integer
+                                  verseEnd:
+                                    type: integer
+                                  text:
+                                    type: string
+                                  similarity:
+                                    type: number
+                                  rank:
+                                    type: integer
+                                  source:
+                                    type: string
+                                  embeddingModel:
+                                    type: string
+                                required:
+                                - chunkId
+                                - reference
+                                - bookCode
+                                - chapter
+                                - verseStart
+                                - verseEnd
+                                - text
+                                - similarity
+                                - rank
+                                - source
+                                - embeddingModel
+                            urantiaParallels:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  standardReferenceId:
+                                    type: string
+                                  paperId:
+                                    type: string
+                                  paperTitle:
+                                    type: string
+                                  sectionTitle:
+                                    type:
+                                    - string
+                                    - 'null'
+                                  text:
+                                    type: string
+                                  similarity:
+                                    type: number
+                                  rank:
+                                    type: integer
+                                  source:
+                                    type: string
+                                  embeddingModel:
+                                    type: string
+                                required:
+                                - id
+                                - standardReferenceId
+                                - paperId
+                                - paperTitle
+                                - sectionTitle
+                                - text
+                                - similarity
+                                - rank
+                                - source
+                                - embeddingModel
+                          required:
+                          - id
+                          - standardReferenceId
+                          - sortId
+                          - paperId
+                          - sectionId
+                          - partId
+                          - paperTitle
+                          - sectionTitle
+                          - paragraphId
+                          - text
+                          - htmlText
+                          - labels
+                          - audio
+                      after:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            standardReferenceId:
+                              type: string
+                            sortId:
+                              type: string
+                            paperId:
+                              type: string
+                            sectionId:
+                              type:
+                              - string
+                              - 'null'
+                            partId:
+                              type: string
+                            paperTitle:
+                              type: string
+                            sectionTitle:
+                              type:
+                              - string
+                              - 'null'
+                            paragraphId:
+                              type: string
+                            text:
+                              type: string
+                            htmlText:
+                              type: string
+                            language:
+                              type: string
+                            labels:
+                              type:
+                              - array
+                              - 'null'
+                              items:
+                                type: string
+                            audio:
+                              type:
+                              - object
+                              - 'null'
+                              additionalProperties:
+                                type: object
+                                additionalProperties:
+                                  type: object
+                                  properties:
+                                    format:
+                                      type: string
+                                    url:
+                                      type: string
+                                    duration:
+                                      type: number
+                                    bitrate:
+                                      type: number
+                                    fileSize:
+                                      type: number
+                                  required:
+                                  - format
+                                  - url
+                            entities:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  type:
+                                    type: string
+                                    enum:
+                                    - being
+                                    - place
+                                    - order
+                                    - race
+                                    - religion
+                                    - concept
+                                required:
+                                - id
+                                - name
+                                - type
+                            bibleParallels:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  chunkId:
+                                    type: string
+                                  reference:
+                                    type: string
+                                  bookCode:
+                                    type: string
+                                  chapter:
+                                    type: integer
+                                  verseStart:
+                                    type: integer
+                                  verseEnd:
+                                    type: integer
+                                  text:
+                                    type: string
+                                  similarity:
+                                    type: number
+                                  rank:
+                                    type: integer
+                                  source:
+                                    type: string
+                                  embeddingModel:
+                                    type: string
+                                required:
+                                - chunkId
+                                - reference
+                                - bookCode
+                                - chapter
+                                - verseStart
+                                - verseEnd
+                                - text
+                                - similarity
+                                - rank
+                                - source
+                                - embeddingModel
+                            urantiaParallels:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  standardReferenceId:
+                                    type: string
+                                  paperId:
+                                    type: string
+                                  paperTitle:
+                                    type: string
+                                  sectionTitle:
+                                    type:
+                                    - string
+                                    - 'null'
+                                  text:
+                                    type: string
+                                  similarity:
+                                    type: number
+                                  rank:
+                                    type: integer
+                                  source:
+                                    type: string
+                                  embeddingModel:
+                                    type: string
+                                required:
+                                - id
+                                - standardReferenceId
+                                - paperId
+                                - paperTitle
+                                - sectionTitle
+                                - text
+                                - similarity
+                                - rank
+                                - source
+                                - embeddingModel
+                          required:
+                          - id
+                          - standardReferenceId
+                          - sortId
+                          - paperId
+                          - sectionId
+                          - partId
+                          - paperTitle
+                          - sectionTitle
+                          - paragraphId
+                          - text
+                          - htmlText
+                          - labels
+                          - audio
+                    required:
+                    - target
+                    - before
+                    - after
+                required:
+                - data
+              example:
+                data:
+                  target:
+                    id: 1:2.5.10
+                    standardReferenceId: '2:5.10'
+                    sortId: 1.002.005.010
+                    paperId: '2'
+                    sectionId: '5'
+                    partId: '1'
+                    paperTitle: The Nature of God
+                    sectionTitle: The Love of God
+                    paragraphId: '10'
+                    text: But the love of God is an intelligent and farseeing parental affection. The divine love functions in unified association with divine wisdom and all other infinite characteristics of the perfect nature of the Universal Father. God is love, but love is not God. The greatest manifestation of the divine love for mortal beings is observed in the bestowal of the Thought Adjusters, but your greatest revelation of the Father’s love is seen in the bestowal life of his Son Michael as he lived on earth the ideal spiritual life. It is the indwelling Adjuster who individualizes the love of God to each human soul.
+                    htmlText: <span class="urantia-dev-pb-4">But the love of God is an intelligent and farseeing parental affection. The divine love functions in unified association with divine wisdom and all other infinite characteristics of the perfect nature of the Universal Father. God is love, but love is not God. The greatest manifestation of the divine love for mortal beings is observed in the bestowal of the Thought Adjusters, but your greatest revelation of the Father’s love is seen in the bestowal life of his Son Michael as he lived on earth the ideal spiritual life. It is the indwelling Adjuster who individualizes the love of God to each human soul.</span>
+                    labels: []
+                    audio:
+                      tts-1-hd:
+                        nova:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:2.5.10.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 38.1
+                          fileSize: 761760
+                        onyx:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/onyx/tts-1-hd-onyx-1:2.5.10.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 37.8
+                          fileSize: 756480
+                      gpt-4o-mini-tts:
+                        cedar:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:2.5.10.mp3
+                          format: mp3
+                          bitrate: 192
+                          duration: 36.4
+                          fileSize: 873995
+                  before:
+                  - id: 1:2.5.9
+                    standardReferenceId: '2:5.9'
+                    sortId: 1.002.005.009
+                    paperId: '2'
+                    sectionId: '5'
+                    partId: '1'
+                    paperTitle: The Nature of God
+                    sectionTitle: The Love of God
+                    paragraphId: '9'
+                    text: 'The Father’s love follows us now and throughout the endless circle of the eternal ages. As you ponder the loving nature of God, there is only one reasonable and natural personality reaction thereto: You will increasingly love your Maker; you will yield to God an affection analogous to that given by a child to an earthly parent; for, as a father, a real father, a true father, loves his children, so the Universal Father loves and forever seeks the welfare of his created sons and daughters.'
+                    htmlText: '<span class="urantia-dev-pb-0">The Father’s love follows us now and throughout the endless circle of the eternal ages. As you ponder the loving nature of God, there is only one reasonable and natural personality reaction thereto: You will increasingly love your Maker; you will yield to God an affection analogous to that given by a child to an earthly parent; for, as a father, a real father, a true father, loves his children, so the Universal Father loves and forever seeks the welfare of his created sons and daughters.</span>'
+                    labels: []
+                    audio:
+                      tts-1-hd:
+                        nova:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:2.5.9.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 30.5
+                          fileSize: 609600
+                        onyx:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/onyx/tts-1-hd-onyx-1:2.5.9.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 30.7
+                          fileSize: 613440
+                      gpt-4o-mini-tts:
+                        cedar:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:2.5.9.mp3
+                          format: mp3
+                          bitrate: 192
+                          duration: 32.4
+                          fileSize: 779328
+                  after:
+                  - id: 1:2.5.11
+                    standardReferenceId: '2:5.11'
+                    sortId: 1.002.005.011
+                    paperId: '2'
+                    sectionId: '5'
+                    partId: '1'
+                    paperTitle: The Nature of God
+                    sectionTitle: The Love of God
+                    paragraphId: '11'
+                    text: At times I am almost pained to be compelled to portray the divine affection of the heavenly Father for his universe children by the employment of the human word symbol love. This term, even though it does connote man’s highest concept of the mortal relations of respect and devotion, is so frequently designative of so much of human relationship that is wholly ignoble and utterly unfit to be known by any word which is also used to indicate the matchless affection of the living God for his universe creatures! How unfortunate that I cannot make use of some supernal and exclusive term which would convey to the mind of man the true nature and exquisitely beautiful significance of the divine affection of the Paradise Father.
+                    htmlText: <span class="urantia-dev-pb-4">At times I am almost pained to be compelled to portray the divine affection of the heavenly Father for his universe children by the employment of the human word symbol <em>love.</em> This term, even though it does connote man’s highest concept of the mortal relations of respect and devotion, is so frequently designative of so much of human relationship that is wholly ignoble and utterly unfit to be known by any word which is also used to indicate the matchless affection of the living God for his universe creatures! How unfortunate that I cannot make use of some supernal and exclusive term which would convey to the mind of man the true nature and exquisitely beautiful significance of the divine affection of the Paradise Father.</span>
+                    labels: []
+                    audio:
+                      tts-1-hd:
+                        nova:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:2.5.11.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 45.9
+                          fileSize: 918240
+                        onyx:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/onyx/tts-1-hd-onyx-1:2.5.11.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 45.6
+                          fileSize: 912480
+                      gpt-4o-mini-tts:
+                        cedar:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:2.5.11.mp3
+                          format: mp3
+                          bitrate: 192
+                          duration: 42.7
+                          fileSize: 1025088
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid reference format
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '404':
+          description: Paragraph not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      description: An RFC 9457 problem details object. Every error response uses it.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI that names the error type.
+        title:
+          type: string
+          description: The short name of the status.
+        status:
+          type: integer
+          description: The HTTP status code.
+        detail:
+          type: string
+          description: What went wrong in this request.
+      required:
+      - type
+      - title
+      - status
+      - detail
+      example:
+        type: https://urantia.dev/errors/not-found
+        title: Not Found
+        status: 404
+        detail: Paragraph not found
+  headers:
+    X-RateLimit-Reset:
+      description: The time the window resets, in Unix seconds.
+      schema:
+        type: integer
+      example: 1791152213
+    X-RateLimit-Limit:
+      description: The number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 200
+    X-RateLimit-Remaining:
+      description: The number of requests left in the current window.
+      schema:
+        type: integer
+      example: 199

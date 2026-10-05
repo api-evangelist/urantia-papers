@@ -1,0 +1,145 @@
+openapi: 3.2.0
+info:
+  title: Urantia Papers Languages API
+  version: 1.0.0
+  description: 'An API and MCP server for the Urantia Papers. Structured access to all 197 papers and more than 14,500 paragraphs, with full-text and semantic search, named entities, Bible cross-references, and audio. No key needed. Docs: https://docs.urantia.dev'
+  termsOfService: https://docs.urantia.dev/terms-of-service
+  contact:
+    name: urantia.dev
+    url: https://docs.urantia.dev/help
+    email: kelson@urantia.dev
+  license:
+    name: MIT
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+servers:
+- url: https://api.urantia.dev
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+security: []
+tags:
+- name: Languages
+paths:
+  /languages:
+    get:
+      operationId: listLanguages
+      tags:
+      - Languages
+      summary: List available languages
+      description: Returns available languages with translation progress (entity and paragraph counts).
+      responses:
+        '200':
+          description: Available languages with translation counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        name:
+                          type: string
+                        entityCount:
+                          type: integer
+                        paragraphCount:
+                          type: integer
+                      required:
+                      - code
+                      - name
+                      - entityCount
+                      - paragraphCount
+                required:
+                - data
+              example:
+                data:
+                - code: eng
+                  name: English
+                  entityCount: 0
+                  paragraphCount: 0
+                - code: es
+                  name: Spanish
+                  entityCount: 4456
+                  paragraphCount: 0
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      description: An RFC 9457 problem details object. Every error response uses it.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI that names the error type.
+        title:
+          type: string
+          description: The short name of the status.
+        status:
+          type: integer
+          description: The HTTP status code.
+        detail:
+          type: string
+          description: What went wrong in this request.
+      required:
+      - type
+      - title
+      - status
+      - detail
+      example:
+        type: https://urantia.dev/errors/not-found
+        title: Not Found
+        status: 404
+        detail: Paragraph not found
+  headers:
+    X-RateLimit-Reset:
+      description: The time the window resets, in Unix seconds.
+      schema:
+        type: integer
+      example: 1791152213
+    X-RateLimit-Limit:
+      description: The number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 200
+    X-RateLimit-Remaining:
+      description: The number of requests left in the current window.
+      schema:
+        type: integer
+      example: 199

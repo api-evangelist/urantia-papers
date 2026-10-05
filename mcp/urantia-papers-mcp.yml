@@ -1,36 +1,87 @@
-generated: '2026-09-11'
+generated: '2026-10-05'
 method: probed
-source: https://urantia.dev/mcp
+source: https://api.urantia.dev/mcp
 status: published
 server:
-  name: urantia-papers
-  transport: http
-  url: https://urantia.dev/mcp
+  name: Urantia Papers API
+  title: Urantia Papers
+  version: 1.0.0
+  transport: streamable-http
+  url: https://api.urantia.dev/mcp
 deployment:
   mode: remote
-  endpoint: https://urantia.dev/mcp
+  endpoint: https://api.urantia.dev/mcp
+  auth: none
   verified: probed
   probe: live
-  checked: '2026-09-11'
-  source: docs-check 2026-09-12 (endpoint found in the provider's own documentation, then probed)
-tools_count: 3
+  checked: '2026-10-05'
+  source: provider llms.txt (https://docs.urantia.dev/llms.txt) and RFC 9727 api-catalog (https://api.urantia.dev/.well-known/api-catalog),
+    then probed
+server_card: https://api.urantia.dev/.well-known/mcp/server-card.json
+documentation: https://docs.urantia.dev/mcp-servers
+tools_count: 19
 tools:
-- name: search_urantia_dev
-  description: Search across the Urantia.dev knowledge base to find relevant information, code examples,
-    API references, and guides. Use this tool when you need to answer questions about Urantia.dev, find
-    specific documentation, understand how features wo
-- name: query_docs_filesystem_urantia_dev
-  description: Run a read-only shell-like query against a virtualized, in-memory filesystem rooted at
-    `/` that contains ONLY the Urantia.dev documentation pages and OpenAPI specs. This is NOT a shell
-    on any real machine — nothing runs on the user's comput
-- name: submit_feedback
-  description: Report a problem with this documentation site so the docs team can fix it. Use when a documentation
-    page is incorrect, outdated, confusing, incomplete, or has a broken example. This is for feedback
-    about the documentation content itself — n
-tools_source: live tools/list via initialize handshake, 2026-09-12 (signals/audit_mcp_authorship.py --probe)
-authorship: platform
-authorship_note: 'PLATFORM-AUTHORED: this tool shape is shared with at least one other provider in the
-  catalog, so it is a platform default appearing under this provider''s domain rather than an interface
-  this provider designed. Shared shape: (''query_docs_filesystem_*'', ''search_*'', ''submit_feedback'')'
-descriptions_source: live tools/list (authorship probe or saved capture); filled by backfill-tools-from-authorship.py
-  --descriptions, 2026-09-28
+- name: toc.get
+  description: Get the full table of contents of the Urantia Papers. Returns the Foreword and the 4 parts, with all 197 papers
+    and their titles.
+- name: papers.list
+  description: List all 197 papers of the Urantia Papers with their metadata (id, title, partId, labels), as a flat list.
+- name: papers.get
+  description: Get a single paper with all its paragraphs. Paper IDs range from 0 (Foreword) to 196. Each paragraph has its
+    reference, section, and plain text, so a whole paper fits in one call. Optionally include entity mentions.
+- name: papers.sections
+  description: Get all sections within a paper, ordered by section number. Useful for understanding paper structure before
+    reading specific sections.
+- name: paragraphs.random
+  description: Get a random paragraph from the Urantia Papers. Great for daily quotes, exploration, or discovering new passages.
+- name: paragraphs.get
+  description: 'Look up a specific paragraph by reference. Supports three formats: globalId ("1:2.0.1"), standardReferenceId
+    ("2:0.1"), or paperSectionParagraphId ("2.0.1"). The format is auto-detected.'
+- name: paragraphs.context
+  description: Get a paragraph with surrounding context (N paragraphs before and after within the same paper). Useful for
+    understanding passages in context.
+- name: search.fulltext
+  description: 'Full-text search across all paragraphs of the Urantia Papers. Supports three modes: "and" (all words must
+    appear, default), "or" (any word), "phrase" (exact phrase). Results ranked by relevance.'
+- name: search.semantic
+  description: Search the Urantia Papers using semantic similarity (vector embeddings). Returns conceptually related results
+    even without exact keyword matches.
+- name: entities.list
+  description: 'Browse the entity catalog: beings, places, orders, races, religions, and concepts mentioned in the Urantia
+    Papers. Supports filtering by type and searching by name.'
+- name: entities.get
+  description: Get detailed information about a specific entity by its slug ID. Returns name, type, aliases, description,
+    related entities, and citation count.
+- name: entities.paragraphs
+  description: Get all paragraphs that mention a specific entity, ordered by position in the text. Useful for studying everything
+    said about a particular being, place, or concept.
+- name: audio.get
+  description: Get the audio file URL for a specific paragraph. Accepts any paragraph reference format (globalId "1:2.0.1",
+    standardReferenceId "2:0.1", or paperSectionParagraphId "2.0.1").
+- name: bible.books
+  description: 'List all 81 books of the World English Bible (eng-web): 39 Old Testament + 15 deuterocanonical + 27 New Testament.
+    Each entry includes OSIS book code, full name, abbreviation, canonical order, canon, and chapter/verse counts.'
+- name: bible.book
+  description: Get metadata for a single Bible book including chapter and verse counts. Accepts OSIS codes ("Gen"), USFM codes
+    ("GEN"), full names ("Genesis"), and aliases ("genesis", "1-maccabees") — case-insensitive, hyphens/underscores tolerated.
+- name: bible.chapter
+  description: Get every verse in a Bible chapter, ordered by verse number. Accepts OSIS, USFM, full name, or alias for `book_code`.
+- name: bible.verse
+  description: Get a single verse from the World English Bible (eng-web). Accepts OSIS, USFM, full name, or alias for `book_code`.
+- name: bible.verse.urantia_parallels
+  description: 'Returns the top 10 Urantia paragraphs whose embeddings are nearest to the Bible chunk that contains this verse.
+    Pre-computed at seed time with text-embedding-3-large (3072-d) cosine similarity. Each result carries a similarity score
+    (0..1) and rank (1..10).
+
+
+    These are semantic neighbors, not a curated list of parallels.'
+- name: bible.search.semantic
+  description: 'Free-form natural-language search across all Bible chunks, ranked by cosine similarity. Each result includes
+    the top-N pre-computed Urantia paragraphs related to that chunk. One query surfaces both Bible matches and the relevant
+    Urantia content. Optional filters: `canon` (`ot`, `deuterocanon`, `nt`) and `book_code`. Set `urantia_parallel_limit`
+    to 0 to leave out the Urantia paragraphs.'
+tools_source: live initialize (protocol 2025-06-18, serverInfo Urantia Papers API 1.0.0) + tools/list with no credentials,
+  2026-10-05
+note: Replaces the 2026-09-11 record of https://urantia.dev/mcp, which was the documentation-search MCP of the docs platform
+  (3 platform-default tools). That path now redirects (308); the docs MCP lives at https://docs.urantia.dev/mcp and is not
+  the API server. This is the provider's own API MCP server, first-party on api.urantia.dev.

@@ -1,0 +1,729 @@
+openapi: 3.2.0
+info:
+  title: Urantia Papers Entities API
+  version: 1.0.0
+  description: 'An API and MCP server for the Urantia Papers. Structured access to all 197 papers and more than 14,500 paragraphs, with full-text and semantic search, named entities, Bible cross-references, and audio. No key needed. Docs: https://docs.urantia.dev'
+  termsOfService: https://docs.urantia.dev/terms-of-service
+  contact:
+    name: urantia.dev
+    url: https://docs.urantia.dev/help
+    email: kelson@urantia.dev
+  license:
+    name: MIT
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+servers:
+- url: https://api.urantia.dev
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+security: []
+tags:
+- name: Entities
+paths:
+  /entities:
+    get:
+      operationId: listEntities
+      tags:
+      - Entities
+      summary: List entities
+      description: Browse the entity catalog (beings, places, orders, races, religions, concepts). Supports filtering by type and searching by name.
+      parameters:
+      - schema:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          default: 0
+        required: false
+        name: page
+        in: query
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+          enum:
+          - being
+          - place
+          - order
+          - race
+          - religion
+          - concept
+        required: false
+        name: type
+        in: query
+      - schema:
+          type: string
+          maxLength: 200
+        required: false
+        name: q
+        in: query
+      - schema:
+          type: string
+          enum:
+          - eng
+          - es
+          - fr
+          - pt
+          - de
+          - ko
+          default: eng
+        required: false
+        name: lang
+        in: query
+      responses:
+        '200':
+          description: Paginated list of entities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                          - being
+                          - place
+                          - order
+                          - race
+                          - religion
+                          - concept
+                        aliases:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                        description:
+                          type:
+                          - string
+                          - 'null'
+                        seeAlso:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                          description: 'Related entry names. An entity with citationCount 0 is a cross-reference stub: follow seeAlso to the entry that has the paragraphs.'
+                        citationCount:
+                          type: integer
+                          description: Number of citations in the source index. A citation of a whole section counts once, so the entity's paragraph total can be higher.
+                        language:
+                          type: string
+                      required:
+                      - id
+                      - name
+                      - type
+                      - aliases
+                      - description
+                      - seeAlso
+                      - citationCount
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                    required:
+                    - page
+                    - limit
+                    - total
+                    - totalPages
+                required:
+                - data
+                - meta
+              example:
+                data:
+                - id: father-melchizedek
+                  name: Father Melchizedek
+                  type: being
+                  aliases: null
+                  description: The original and firstborn Melchizedek Son of Nebadon, created through the union of the Creator Son and Creative Spirit, who serves as Gabriel's executive associate and assumes his responsibilities during his absence from Salvington.
+                  seeAlso:
+                  - Melchizedek Sons
+                  citationCount: 13
+                - id: machiventa-melchizedek
+                  name: Machiventa Melchizedek
+                  type: being
+                  aliases:
+                  - Machiventa Melchizedek
+                  - Melchizedek
+                  description: A Melchizedek Son who incarnated as an emergency bestowal on Urantia in 1973 B.C., appearing at Salem to preserve the truth of one God and prepare the way for Michael's later bestowal. Known as the Prince of Salem, he taught Abraham and established a covenant based on faith rather than sacrifice, departing after 94 years when his followers began to regard him as supernatural. He now serves as vicegerent Planetary Prince of Urantia.
+                  seeAlso:
+                  - Melchizedek Sons
+                  - missionaries:Salem missionaries
+                  citationCount: 55
+                meta:
+                  page: 0
+                  limit: 2
+                  total: 14
+                  totalPages: 7
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+  /entities/{id}:
+    get:
+      operationId: getEntity
+      tags:
+      - Entities
+      summary: Get an entity by ID
+      description: Returns a single entity by its slug ID.
+      parameters:
+      - schema:
+          type: string
+        required: true
+        name: id
+        in: path
+      responses:
+        '200':
+          description: The entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - being
+                        - place
+                        - order
+                        - race
+                        - religion
+                        - concept
+                      aliases:
+                        type:
+                        - array
+                        - 'null'
+                        items:
+                          type: string
+                      description:
+                        type:
+                        - string
+                        - 'null'
+                      seeAlso:
+                        type:
+                        - array
+                        - 'null'
+                        items:
+                          type: string
+                        description: 'Related entry names. An entity with citationCount 0 is a cross-reference stub: follow seeAlso to the entry that has the paragraphs.'
+                      citationCount:
+                        type: integer
+                        description: Number of citations in the source index. A citation of a whole section counts once, so the entity's paragraph total can be higher.
+                      language:
+                        type: string
+                    required:
+                    - id
+                    - name
+                    - type
+                    - aliases
+                    - description
+                    - seeAlso
+                    - citationCount
+                required:
+                - data
+              example:
+                data:
+                  id: machiventa-melchizedek
+                  name: Machiventa Melchizedek
+                  type: being
+                  aliases:
+                  - Machiventa Melchizedek
+                  - Melchizedek
+                  description: A Melchizedek Son who incarnated as an emergency bestowal on Urantia in 1973 B.C., appearing at Salem to preserve the truth of one God and prepare the way for Michael's later bestowal. Known as the Prince of Salem, he taught Abraham and established a covenant based on faith rather than sacrifice, departing after 94 years when his followers began to regard him as supernatural. He now serves as vicegerent Planetary Prince of Urantia.
+                  seeAlso:
+                  - Melchizedek Sons
+                  - missionaries:Salem missionaries
+                  citationCount: 55
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '404':
+          description: Entity not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+  /entities/{id}/paragraphs:
+    get:
+      operationId: getEntityParagraphs
+      tags:
+      - Entities
+      summary: Get paragraphs mentioning an entity
+      description: Returns all paragraphs that mention a given entity, ordered by position in the text.
+      parameters:
+      - schema:
+          type: string
+        required: true
+        name: id
+        in: path
+      - schema:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          default: 0
+        required: false
+        name: page
+        in: query
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+          enum:
+          - eng
+          - es
+          - fr
+          - pt
+          - de
+          - ko
+          default: eng
+        required: false
+        name: lang
+        in: query
+      responses:
+        '200':
+          description: Paginated paragraphs mentioning the entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        standardReferenceId:
+                          type: string
+                        sortId:
+                          type: string
+                        paperId:
+                          type: string
+                        sectionId:
+                          type:
+                          - string
+                          - 'null'
+                        partId:
+                          type: string
+                        paperTitle:
+                          type: string
+                        sectionTitle:
+                          type:
+                          - string
+                          - 'null'
+                        paragraphId:
+                          type: string
+                        text:
+                          type: string
+                        htmlText:
+                          type: string
+                        language:
+                          type: string
+                        labels:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                        audio:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                format:
+                                  type: string
+                                url:
+                                  type: string
+                                duration:
+                                  type: number
+                                bitrate:
+                                  type: number
+                                fileSize:
+                                  type: number
+                              required:
+                              - format
+                              - url
+                        entities:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                - being
+                                - place
+                                - order
+                                - race
+                                - religion
+                                - concept
+                            required:
+                            - id
+                            - name
+                            - type
+                        bibleParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chunkId:
+                                type: string
+                              reference:
+                                type: string
+                              bookCode:
+                                type: string
+                              chapter:
+                                type: integer
+                              verseStart:
+                                type: integer
+                              verseEnd:
+                                type: integer
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - chunkId
+                            - reference
+                            - bookCode
+                            - chapter
+                            - verseStart
+                            - verseEnd
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        urantiaParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              standardReferenceId:
+                                type: string
+                              paperId:
+                                type: string
+                              paperTitle:
+                                type: string
+                              sectionTitle:
+                                type:
+                                - string
+                                - 'null'
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - id
+                            - standardReferenceId
+                            - paperId
+                            - paperTitle
+                            - sectionTitle
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                      required:
+                      - id
+                      - standardReferenceId
+                      - sortId
+                      - paperId
+                      - sectionId
+                      - partId
+                      - paperTitle
+                      - sectionTitle
+                      - paragraphId
+                      - text
+                      - htmlText
+                      - labels
+                      - audio
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                    required:
+                    - page
+                    - limit
+                    - total
+                    - totalPages
+                required:
+                - data
+                - meta
+              example:
+                data:
+                - id: 2:35.4.5
+                  standardReferenceId: '35:4.5'
+                  sortId: 2.035.004.005
+                  paperId: '35'
+                  sectionId: '4'
+                  partId: '2'
+                  paperTitle: The Local Universe Sons of God
+                  sectionTitle: Special Work of the Melchizedeks
+                  paragraphId: '5'
+                  text: The Melchizedek who lived on Urantia during the time of Abraham was locally known as Prince of Salem because he presided over a small colony of truth seekers residing at a place called Salem. He volunteered to incarnate in the likeness of mortal flesh and did so with the approval of the Melchizedek receivers of the planet, who feared that the light of life would become extinguished during that period of increasing spiritual darkness. And he did foster the truth of his day and safely pass it on to Abraham and his associates.
+                  htmlText: <span class="urantia-dev-pb-0">The Melchizedek who lived on Urantia during the time of Abraham was locally known as Prince of Salem because he presided over a small colony of truth seekers residing at a place called Salem. He volunteered to incarnate in the likeness of mortal flesh and did so with the approval of the Melchizedek receivers of the planet, who feared that the light of life would become extinguished during that period of increasing spiritual darkness. And he did foster the truth of his day and safely pass it on to Abraham and his associates.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-2:35.4.5.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 33.3
+                        fileSize: 666240
+                    gpt-4o-mini-tts:
+                      cedar:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-2:35.4.5.mp3
+                        format: mp3
+                        bitrate: 192
+                        duration: 32.5
+                        fileSize: 781835
+                - id: 2:43.5.17
+                  standardReferenceId: '43:5.17'
+                  sortId: 2.043.005.017
+                  paperId: '43'
+                  sectionId: '5'
+                  partId: '2'
+                  paperTitle: The Constellations
+                  sectionTitle: The Edentia Fathers since the Lucifer Rebellion
+                  paragraphId: '17'
+                  text: Every quarantined or isolated world has a Vorondadek Son acting as an observer. He does not participate in planetary administration except when ordered by the Constellation Father to intervene in the affairs of the nations. Actually it is this Most High observer who “rules in the kingdoms of men.” Urantia is one of the isolated worlds of Norlatiadek, and a Vorondadek observer has been stationed on the planet ever since the Caligastia betrayal. When Machiventa Melchizedek ministered in semimaterial form on Urantia, he paid respectful homage to the Most High observer then on duty, as it is written, “And Melchizedek, king of Salem, was the priest of the Most High.” Melchizedek revealed the relations of this Most High observer to Abraham when he said, “And blessed be the Most High, who has delivered your enemies into your hand.”
+                  htmlText: <span class="urantia-dev-pb-0">Every quarantined or isolated world has a Vorondadek Son acting as an observer. He does not participate in planetary administration except when ordered by the Constellation Father to intervene in the affairs of the nations. Actually it is this Most High observer who “rules in the kingdoms of men.” Urantia is one of the isolated worlds of Norlatiadek, and a Vorondadek observer has been stationed on the planet ever since the Caligastia betrayal. When Machiventa Melchizedek ministered in semimaterial form on Urantia, he paid respectful homage to the Most High observer then on duty, as it is written, “And Melchizedek, king of Salem, was the priest of the Most High.” Melchizedek revealed the relations of this Most High observer to Abraham when he said, “And blessed be the Most High, who has delivered your enemies into your hand.”</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-2:43.5.17.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 52.1
+                        fileSize: 1042560
+                meta:
+                  page: 0
+                  limit: 2
+                  total: 67
+                  totalPages: 34
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '404':
+          description: Entity not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      description: An RFC 9457 problem details object. Every error response uses it.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI that names the error type.
+        title:
+          type: string
+          description: The short name of the status.
+        status:
+          type: integer
+          description: The HTTP status code.
+        detail:
+          type: string
+          description: What went wrong in this request.
+      required:
+      - type
+      - title
+      - status
+      - detail
+      example:
+        type: https://urantia.dev/errors/not-found
+        title: Not Found
+        status: 404
+        detail: Paragraph not found
+  headers:
+    X-RateLimit-Reset:
+      description: The time the window resets, in Unix seconds.
+      schema:
+        type: integer
+      example: 1791152213
+    X-RateLimit-Limit:
+      description: The number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 200
+    X-RateLimit-Remaining:
+      description: The number of requests left in the current window.
+      schema:
+        type: integer
+      example: 199

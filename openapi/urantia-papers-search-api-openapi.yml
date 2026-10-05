@@ -1,0 +1,1496 @@
+openapi: 3.2.0
+info:
+  title: Urantia Papers Search API
+  version: 1.0.0
+  description: 'An API and MCP server for the Urantia Papers. Structured access to all 197 papers and more than 14,500 paragraphs, with full-text and semantic search, named entities, Bible cross-references, and audio. No key needed. Docs: https://docs.urantia.dev'
+  termsOfService: https://docs.urantia.dev/terms-of-service
+  contact:
+    name: urantia.dev
+    url: https://docs.urantia.dev/help
+    email: kelson@urantia.dev
+  license:
+    name: MIT
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+servers:
+- url: https://api.urantia.dev
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+security: []
+tags:
+- name: Search
+paths:
+  /search:
+    post:
+      operationId: search
+      tags:
+      - Search
+      summary: Full-text search across all paragraphs
+      description: 'Search the Urantia Papers using full-text search. Supports three search modes:
+
+        - **and**: All words must appear (default)
+
+        - **or**: Any word can appear
+
+        - **phrase**: Exact phrase match
+
+
+        Results are ranked by relevance. Optional filters: paperId, partId.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+                page:
+                  type: integer
+                  minimum: 0
+                  default: 0
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 20
+                paperId:
+                  type: string
+                partId:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                  - phrase
+                  - and
+                  - or
+                  default: and
+                include:
+                  type: string
+              required:
+              - q
+            example:
+              q: Thought Adjuster
+              limit: 2
+      responses:
+        '200':
+          description: Search results with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        standardReferenceId:
+                          type: string
+                        sortId:
+                          type: string
+                        paperId:
+                          type: string
+                        sectionId:
+                          type:
+                          - string
+                          - 'null'
+                        partId:
+                          type: string
+                        paperTitle:
+                          type: string
+                        sectionTitle:
+                          type:
+                          - string
+                          - 'null'
+                        paragraphId:
+                          type: string
+                        text:
+                          type: string
+                        htmlText:
+                          type: string
+                        language:
+                          type: string
+                        labels:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                        audio:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                format:
+                                  type: string
+                                url:
+                                  type: string
+                                duration:
+                                  type: number
+                                bitrate:
+                                  type: number
+                                fileSize:
+                                  type: number
+                              required:
+                              - format
+                              - url
+                        entities:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                - being
+                                - place
+                                - order
+                                - race
+                                - religion
+                                - concept
+                            required:
+                            - id
+                            - name
+                            - type
+                        bibleParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chunkId:
+                                type: string
+                              reference:
+                                type: string
+                              bookCode:
+                                type: string
+                              chapter:
+                                type: integer
+                              verseStart:
+                                type: integer
+                              verseEnd:
+                                type: integer
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - chunkId
+                            - reference
+                            - bookCode
+                            - chapter
+                            - verseStart
+                            - verseEnd
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        urantiaParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              standardReferenceId:
+                                type: string
+                              paperId:
+                                type: string
+                              paperTitle:
+                                type: string
+                              sectionTitle:
+                                type:
+                                - string
+                                - 'null'
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - id
+                            - standardReferenceId
+                            - paperId
+                            - paperTitle
+                            - sectionTitle
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        rank:
+                          type: number
+                      required:
+                      - id
+                      - standardReferenceId
+                      - sortId
+                      - paperId
+                      - sectionId
+                      - partId
+                      - paperTitle
+                      - sectionTitle
+                      - paragraphId
+                      - text
+                      - htmlText
+                      - labels
+                      - audio
+                      - rank
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                    required:
+                    - page
+                    - limit
+                    - total
+                    - totalPages
+                required:
+                - data
+                - meta
+              example:
+                data:
+                - id: 1:16.8.3
+                  standardReferenceId: '16:8.3'
+                  sortId: 1.016.008.003
+                  paperId: '16'
+                  sectionId: '8'
+                  partId: '1'
+                  paperTitle: The Seven Master Spirits
+                  sectionTitle: Urantia Personality
+                  paragraphId: '3'
+                  text: Personality is a unique endowment of original nature whose existence is independent of, and antecedent to, the bestowal of the Thought Adjuster. Nevertheless, the presence of the Adjuster does augment the qualitative manifestation of personality. Thought Adjusters, when they come forth from the Father, are identical in nature, but personality is diverse, original, and exclusive; and the manifestation of personality is further conditioned and qualified by the nature and qualities of the associated energies of a material, mindal, and spiritual nature which constitute the organismal vehicle for personality manifestation.
+                  htmlText: <span class="urantia-dev-pb-0">Personality is a unique endowment of original nature whose existence is independent of, and antecedent to, the bestowal of the <span class=urantia-dev-highlighted>Thought</span> <span class=urantia-dev-highlighted>Adjuster</span>. Nevertheless, the presence of the <span class=urantia-dev-highlighted>Adjuster</span> does augment the qualitative manifestation of personality. <span class=urantia-dev-highlighted>Thought</span> <span class=urantia-dev-highlighted>Adjusters</span>, when they come forth from the Father, are identical in nature, but personality is diverse, original, and exclusive; and the manifestation of personality is further conditioned and qualified by the nature and qualities of the associated energies of a material, mindal, and spiritual nature which constitute the organismal vehicle for personality manifestation.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:16.8.3.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 38
+                        fileSize: 759840
+                    gpt-4o-mini-tts:
+                      cedar:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:16.8.3.mp3
+                        format: mp3
+                        bitrate: 192
+                        duration: 39.9
+                        fileSize: 959259
+                  rank: 0.310552
+                - id: 3:108.5.5
+                  standardReferenceId: '108:5.5'
+                  sortId: 3.108.005.005
+                  paperId: '108'
+                  sectionId: '5'
+                  partId: '3'
+                  paperTitle: Mission and Ministry of Thought Adjusters
+                  sectionTitle: The Adjuster’s Mission
+                  paragraphId: '5'
+                  text: The Mystery Monitors are not thought helpers; they are thought adjusters. They labor with the material mind for the purpose of constructing, by adjustment and spiritualization, a new mind for the new worlds and the new name of your future career. Their mission chiefly concerns the future life, not this life. They are called heavenly helpers, not earthly helpers. They are not interested in making the mortal career easy; rather are they concerned in making your life reasonably difficult and rugged, so that decisions will be stimulated and multiplied. The presence of a great Thought Adjuster does not bestow ease of living and freedom from strenuous thinking, but such a divine gift should confer a sublime peace of mind and a superb tranquillity of spirit.
+                  htmlText: <span class="urantia-dev-pb-0">The Mystery Monitors are not <span class=urantia-dev-highlighted>thought</span> helpers; they are <span class=urantia-dev-highlighted>thought</span> <span class=urantia-dev-highlighted>adjusters</span>. They labor with the material mind for the purpose of constructing, by <span class=urantia-dev-highlighted>adjustment</span> and spiritualization, a new mind for the new worlds and the new name of your future career. Their mission chiefly concerns the future life, not this life. They are called heavenly helpers, not earthly helpers. They are not interested in making the mortal career easy; rather are they concerned in making your life reasonably difficult and rugged, so that decisions will be stimulated and multiplied. The presence of a great <span class=urantia-dev-highlighted>Thought</span> <span class=urantia-dev-highlighted>Adjuster</span> does not bestow ease of living and freedom from strenuous thinking, but such a divine gift should confer a sublime peace of mind and a superb tranquillity of spirit.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-3:108.5.5.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 47.4
+                        fileSize: 948000
+                  rank: 0.27321
+                meta:
+                  page: 0
+                  limit: 2
+                  total: 244
+                  totalPages: 122
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid search query
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+    get:
+      operationId: searchGet
+      tags:
+      - Search
+      summary: Full-text search across all paragraphs (GET)
+      description: 'Search the Urantia Papers using full-text search. Supports three search modes:
+
+        - **and**: All words must appear (default)
+
+        - **or**: Any word can appear
+
+        - **phrase**: Exact phrase match
+
+
+        Results are ranked by relevance. Optional filters: paperId, partId.
+
+
+        Accepts query parameters instead of a JSON body. Designed for AI agents and browser-based access.'
+      parameters:
+      - schema:
+          type: string
+          minLength: 1
+          maxLength: 500
+        required: true
+        name: q
+        in: query
+      - schema:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          default: 0
+        required: false
+        name: page
+        in: query
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+        required: false
+        name: paperId
+        in: query
+        example: '2'
+      - schema:
+          type: string
+        required: false
+        name: partId
+        in: query
+      - schema:
+          type: string
+          enum:
+          - phrase
+          - and
+          - or
+          default: and
+        required: false
+        name: type
+        in: query
+      - schema:
+          type: string
+        required: false
+        name: include
+        in: query
+      responses:
+        '200':
+          description: Search results with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        standardReferenceId:
+                          type: string
+                        sortId:
+                          type: string
+                        paperId:
+                          type: string
+                        sectionId:
+                          type:
+                          - string
+                          - 'null'
+                        partId:
+                          type: string
+                        paperTitle:
+                          type: string
+                        sectionTitle:
+                          type:
+                          - string
+                          - 'null'
+                        paragraphId:
+                          type: string
+                        text:
+                          type: string
+                        htmlText:
+                          type: string
+                        language:
+                          type: string
+                        labels:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                        audio:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                format:
+                                  type: string
+                                url:
+                                  type: string
+                                duration:
+                                  type: number
+                                bitrate:
+                                  type: number
+                                fileSize:
+                                  type: number
+                              required:
+                              - format
+                              - url
+                        entities:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                - being
+                                - place
+                                - order
+                                - race
+                                - religion
+                                - concept
+                            required:
+                            - id
+                            - name
+                            - type
+                        bibleParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chunkId:
+                                type: string
+                              reference:
+                                type: string
+                              bookCode:
+                                type: string
+                              chapter:
+                                type: integer
+                              verseStart:
+                                type: integer
+                              verseEnd:
+                                type: integer
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - chunkId
+                            - reference
+                            - bookCode
+                            - chapter
+                            - verseStart
+                            - verseEnd
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        urantiaParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              standardReferenceId:
+                                type: string
+                              paperId:
+                                type: string
+                              paperTitle:
+                                type: string
+                              sectionTitle:
+                                type:
+                                - string
+                                - 'null'
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - id
+                            - standardReferenceId
+                            - paperId
+                            - paperTitle
+                            - sectionTitle
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        rank:
+                          type: number
+                      required:
+                      - id
+                      - standardReferenceId
+                      - sortId
+                      - paperId
+                      - sectionId
+                      - partId
+                      - paperTitle
+                      - sectionTitle
+                      - paragraphId
+                      - text
+                      - htmlText
+                      - labels
+                      - audio
+                      - rank
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                    required:
+                    - page
+                    - limit
+                    - total
+                    - totalPages
+                required:
+                - data
+                - meta
+              example:
+                data:
+                - id: 1:16.8.3
+                  standardReferenceId: '16:8.3'
+                  sortId: 1.016.008.003
+                  paperId: '16'
+                  sectionId: '8'
+                  partId: '1'
+                  paperTitle: The Seven Master Spirits
+                  sectionTitle: Urantia Personality
+                  paragraphId: '3'
+                  text: Personality is a unique endowment of original nature whose existence is independent of, and antecedent to, the bestowal of the Thought Adjuster. Nevertheless, the presence of the Adjuster does augment the qualitative manifestation of personality. Thought Adjusters, when they come forth from the Father, are identical in nature, but personality is diverse, original, and exclusive; and the manifestation of personality is further conditioned and qualified by the nature and qualities of the associated energies of a material, mindal, and spiritual nature which constitute the organismal vehicle for personality manifestation.
+                  htmlText: <span class="urantia-dev-pb-0">Personality is a unique endowment of original nature whose existence is independent of, and antecedent to, the bestowal of the <span class=urantia-dev-highlighted>Thought</span> <span class=urantia-dev-highlighted>Adjuster</span>. Nevertheless, the presence of the <span class=urantia-dev-highlighted>Adjuster</span> does augment the qualitative manifestation of personality. <span class=urantia-dev-highlighted>Thought</span> <span class=urantia-dev-highlighted>Adjusters</span>, when they come forth from the Father, are identical in nature, but personality is diverse, original, and exclusive; and the manifestation of personality is further conditioned and qualified by the nature and qualities of the associated energies of a material, mindal, and spiritual nature which constitute the organismal vehicle for personality manifestation.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:16.8.3.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 38
+                        fileSize: 759840
+                    gpt-4o-mini-tts:
+                      cedar:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:16.8.3.mp3
+                        format: mp3
+                        bitrate: 192
+                        duration: 39.9
+                        fileSize: 959259
+                  rank: 0.310552
+                - id: 3:108.5.5
+                  standardReferenceId: '108:5.5'
+                  sortId: 3.108.005.005
+                  paperId: '108'
+                  sectionId: '5'
+                  partId: '3'
+                  paperTitle: Mission and Ministry of Thought Adjusters
+                  sectionTitle: The Adjuster’s Mission
+                  paragraphId: '5'
+                  text: The Mystery Monitors are not thought helpers; they are thought adjusters. They labor with the material mind for the purpose of constructing, by adjustment and spiritualization, a new mind for the new worlds and the new name of your future career. Their mission chiefly concerns the future life, not this life. They are called heavenly helpers, not earthly helpers. They are not interested in making the mortal career easy; rather are they concerned in making your life reasonably difficult and rugged, so that decisions will be stimulated and multiplied. The presence of a great Thought Adjuster does not bestow ease of living and freedom from strenuous thinking, but such a divine gift should confer a sublime peace of mind and a superb tranquillity of spirit.
+                  htmlText: <span class="urantia-dev-pb-0">The Mystery Monitors are not <span class=urantia-dev-highlighted>thought</span> helpers; they are <span class=urantia-dev-highlighted>thought</span> <span class=urantia-dev-highlighted>adjusters</span>. They labor with the material mind for the purpose of constructing, by <span class=urantia-dev-highlighted>adjustment</span> and spiritualization, a new mind for the new worlds and the new name of your future career. Their mission chiefly concerns the future life, not this life. They are called heavenly helpers, not earthly helpers. They are not interested in making the mortal career easy; rather are they concerned in making your life reasonably difficult and rugged, so that decisions will be stimulated and multiplied. The presence of a great <span class=urantia-dev-highlighted>Thought</span> <span class=urantia-dev-highlighted>Adjuster</span> does not bestow ease of living and freedom from strenuous thinking, but such a divine gift should confer a sublime peace of mind and a superb tranquillity of spirit.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-3:108.5.5.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 47.4
+                        fileSize: 948000
+                  rank: 0.27321
+                meta:
+                  page: 0
+                  limit: 2
+                  total: 244
+                  totalPages: 122
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid search query
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+  /search/semantic:
+    post:
+      operationId: semanticSearch
+      tags:
+      - Search
+      summary: Semantic similarity search across all paragraphs
+      description: 'Search the Urantia Papers using semantic similarity (vector embeddings).
+
+        Returns conceptually related results even without exact keyword matches.
+
+        Optional filters: paperId, partId.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                page:
+                  type: integer
+                  minimum: 0
+                  default: 0
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 20
+                paperId:
+                  type: string
+                partId:
+                  type: string
+                include:
+                  type: string
+              required:
+              - q
+            example:
+              q: what happens after death
+              limit: 2
+      responses:
+        '200':
+          description: Semantic search results with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        standardReferenceId:
+                          type: string
+                        sortId:
+                          type: string
+                        paperId:
+                          type: string
+                        sectionId:
+                          type:
+                          - string
+                          - 'null'
+                        partId:
+                          type: string
+                        paperTitle:
+                          type: string
+                        sectionTitle:
+                          type:
+                          - string
+                          - 'null'
+                        paragraphId:
+                          type: string
+                        text:
+                          type: string
+                        htmlText:
+                          type: string
+                        language:
+                          type: string
+                        labels:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                        audio:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                format:
+                                  type: string
+                                url:
+                                  type: string
+                                duration:
+                                  type: number
+                                bitrate:
+                                  type: number
+                                fileSize:
+                                  type: number
+                              required:
+                              - format
+                              - url
+                        entities:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                - being
+                                - place
+                                - order
+                                - race
+                                - religion
+                                - concept
+                            required:
+                            - id
+                            - name
+                            - type
+                        bibleParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chunkId:
+                                type: string
+                              reference:
+                                type: string
+                              bookCode:
+                                type: string
+                              chapter:
+                                type: integer
+                              verseStart:
+                                type: integer
+                              verseEnd:
+                                type: integer
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - chunkId
+                            - reference
+                            - bookCode
+                            - chapter
+                            - verseStart
+                            - verseEnd
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        urantiaParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              standardReferenceId:
+                                type: string
+                              paperId:
+                                type: string
+                              paperTitle:
+                                type: string
+                              sectionTitle:
+                                type:
+                                - string
+                                - 'null'
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - id
+                            - standardReferenceId
+                            - paperId
+                            - paperTitle
+                            - sectionTitle
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        similarity:
+                          type: number
+                      required:
+                      - id
+                      - standardReferenceId
+                      - sortId
+                      - paperId
+                      - sectionId
+                      - partId
+                      - paperTitle
+                      - sectionTitle
+                      - paragraphId
+                      - text
+                      - htmlText
+                      - labels
+                      - audio
+                      - similarity
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                    required:
+                    - page
+                    - limit
+                    - total
+                    - totalPages
+                required:
+                - data
+                - meta
+              example:
+                data:
+                - id: 3:112.4.3
+                  standardReferenceId: '112:4.3'
+                  sortId: 3.112.004.003
+                  paperId: '112'
+                  sectionId: '4'
+                  partId: '3'
+                  paperTitle: Personality Survival
+                  sectionTitle: Adjusters After Death
+                  paragraphId: '3'
+                  text: Subsequent to physical death, except in individuals translated from among the living, the released Adjuster goes immediately to the home sphere of Divinington. The details of what transpires on that world during the time of awaiting the factual reappearance of the surviving mortal depend chiefly on whether the human being ascends to the mansion worlds in his own individual right or awaits a dispensational summoning of the sleeping survivors of a planetary age.
+                  htmlText: <span class="urantia-dev-pb-0">Subsequent to physical death, except in individuals translated from among the living, the released Adjuster goes immediately to the home sphere of Divinington. The details of what transpires on that world during the time of awaiting the factual reappearance of the surviving mortal depend chiefly on whether the human being ascends to the mansion worlds in his own individual right or awaits a dispensational summoning of the sleeping survivors of a planetary age.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-3:112.4.3.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 29
+                        fileSize: 579360
+                  similarity: 0.553150798189724
+                - id: 3:112.3.4
+                  standardReferenceId: '112:3.4'
+                  sortId: 3.112.003.004
+                  paperId: '112'
+                  sectionId: '3'
+                  partId: '3'
+                  paperTitle: Personality Survival
+                  sectionTitle: The Phenomenon of Death
+                  paragraphId: '4'
+                  text: 3. Physical (body and mind) death. When death overtakes a human being, the Adjuster remains in the citadel of the mind until it ceases to function as an intelligent mechanism, about the time that the measurable brain energies cease their rhythmic vital pulsations. Following this dissolution the Adjuster takes leave of the vanishing mind, just as unceremoniously as entry was made years before, and proceeds to Divinington by way of Uversa.
+                  htmlText: <span class="urantia-dev-pb-2">3. <em>Physical (body and mind) death.</em> When death overtakes a human being, the Adjuster remains in the citadel of the mind until it ceases to function as an intelligent mechanism, about the time that the measurable brain energies cease their rhythmic vital pulsations. Following this dissolution the Adjuster takes leave of the vanishing mind, just as unceremoniously as entry was made years before, and proceeds to Divinington by way of Uversa.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-3:112.3.4.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 27.4
+                        fileSize: 547680
+                  similarity: 0.526940972060405
+                meta:
+                  page: 0
+                  limit: 2
+                  total: 14593
+                  totalPages: 7297
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid search query
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+    get:
+      operationId: semanticSearchGet
+      tags:
+      - Search
+      summary: Semantic similarity search across all paragraphs (GET)
+      description: 'Search the Urantia Papers using semantic similarity (vector embeddings).
+
+        Returns conceptually related results even without exact keyword matches.
+
+        Optional filters: paperId, partId.
+
+
+        Accepts query parameters instead of a JSON body. Designed for AI agents and browser-based access.'
+      parameters:
+      - schema:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        required: true
+        name: q
+        in: query
+      - schema:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          default: 0
+        required: false
+        name: page
+        in: query
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        required: false
+        name: limit
+        in: query
+      - schema:
+          type: string
+        required: false
+        name: paperId
+        in: query
+        example: '2'
+      - schema:
+          type: string
+        required: false
+        name: partId
+        in: query
+      - schema:
+          type: string
+        required: false
+        name: include
+        in: query
+      responses:
+        '200':
+          description: Semantic search results with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        standardReferenceId:
+                          type: string
+                        sortId:
+                          type: string
+                        paperId:
+                          type: string
+                        sectionId:
+                          type:
+                          - string
+                          - 'null'
+                        partId:
+                          type: string
+                        paperTitle:
+                          type: string
+                        sectionTitle:
+                          type:
+                          - string
+                          - 'null'
+                        paragraphId:
+                          type: string
+                        text:
+                          type: string
+                        htmlText:
+                          type: string
+                        language:
+                          type: string
+                        labels:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                        audio:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                format:
+                                  type: string
+                                url:
+                                  type: string
+                                duration:
+                                  type: number
+                                bitrate:
+                                  type: number
+                                fileSize:
+                                  type: number
+                              required:
+                              - format
+                              - url
+                        entities:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                - being
+                                - place
+                                - order
+                                - race
+                                - religion
+                                - concept
+                            required:
+                            - id
+                            - name
+                            - type
+                        bibleParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              chunkId:
+                                type: string
+                              reference:
+                                type: string
+                              bookCode:
+                                type: string
+                              chapter:
+                                type: integer
+                              verseStart:
+                                type: integer
+                              verseEnd:
+                                type: integer
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - chunkId
+                            - reference
+                            - bookCode
+                            - chapter
+                            - verseStart
+                            - verseEnd
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        urantiaParallels:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              standardReferenceId:
+                                type: string
+                              paperId:
+                                type: string
+                              paperTitle:
+                                type: string
+                              sectionTitle:
+                                type:
+                                - string
+                                - 'null'
+                              text:
+                                type: string
+                              similarity:
+                                type: number
+                              rank:
+                                type: integer
+                              source:
+                                type: string
+                              embeddingModel:
+                                type: string
+                            required:
+                            - id
+                            - standardReferenceId
+                            - paperId
+                            - paperTitle
+                            - sectionTitle
+                            - text
+                            - similarity
+                            - rank
+                            - source
+                            - embeddingModel
+                        similarity:
+                          type: number
+                      required:
+                      - id
+                      - standardReferenceId
+                      - sortId
+                      - paperId
+                      - sectionId
+                      - partId
+                      - paperTitle
+                      - sectionTitle
+                      - paragraphId
+                      - text
+                      - htmlText
+                      - labels
+                      - audio
+                      - similarity
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                    required:
+                    - page
+                    - limit
+                    - total
+                    - totalPages
+                required:
+                - data
+                - meta
+              example:
+                data:
+                - id: 3:112.4.3
+                  standardReferenceId: '112:4.3'
+                  sortId: 3.112.004.003
+                  paperId: '112'
+                  sectionId: '4'
+                  partId: '3'
+                  paperTitle: Personality Survival
+                  sectionTitle: Adjusters After Death
+                  paragraphId: '3'
+                  text: Subsequent to physical death, except in individuals translated from among the living, the released Adjuster goes immediately to the home sphere of Divinington. The details of what transpires on that world during the time of awaiting the factual reappearance of the surviving mortal depend chiefly on whether the human being ascends to the mansion worlds in his own individual right or awaits a dispensational summoning of the sleeping survivors of a planetary age.
+                  htmlText: <span class="urantia-dev-pb-0">Subsequent to physical death, except in individuals translated from among the living, the released Adjuster goes immediately to the home sphere of Divinington. The details of what transpires on that world during the time of awaiting the factual reappearance of the surviving mortal depend chiefly on whether the human being ascends to the mansion worlds in his own individual right or awaits a dispensational summoning of the sleeping survivors of a planetary age.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-3:112.4.3.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 29
+                        fileSize: 579360
+                  similarity: 0.553150798189724
+                - id: 3:112.3.4
+                  standardReferenceId: '112:3.4'
+                  sortId: 3.112.003.004
+                  paperId: '112'
+                  sectionId: '3'
+                  partId: '3'
+                  paperTitle: Personality Survival
+                  sectionTitle: The Phenomenon of Death
+                  paragraphId: '4'
+                  text: 3. Physical (body and mind) death. When death overtakes a human being, the Adjuster remains in the citadel of the mind until it ceases to function as an intelligent mechanism, about the time that the measurable brain energies cease their rhythmic vital pulsations. Following this dissolution the Adjuster takes leave of the vanishing mind, just as unceremoniously as entry was made years before, and proceeds to Divinington by way of Uversa.
+                  htmlText: <span class="urantia-dev-pb-2">3. <em>Physical (body and mind) death.</em> When death overtakes a human being, the Adjuster remains in the citadel of the mind until it ceases to function as an intelligent mechanism, about the time that the measurable brain energies cease their rhythmic vital pulsations. Following this dissolution the Adjuster takes leave of the vanishing mind, just as unceremoniously as entry was made years before, and proceeds to Divinington by way of Uversa.</span>
+                  labels: []
+                  audio:
+                    tts-1-hd:
+                      nova:
+                        url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-3:112.3.4.mp3
+                        format: mp3
+                        bitrate: 160
+                        duration: 27.4
+                        fileSize: 547680
+                  similarity: 0.526940972060405
+                meta:
+                  page: 0
+                  limit: 2
+                  total: 14593
+                  totalPages: 7297
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid search query
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      description: An RFC 9457 problem details object. Every error response uses it.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI that names the error type.
+        title:
+          type: string
+          description: The short name of the status.
+        status:
+          type: integer
+          description: The HTTP status code.
+        detail:
+          type: string
+          description: What went wrong in this request.
+      required:
+      - type
+      - title
+      - status
+      - detail
+      example:
+        type: https://urantia.dev/errors/not-found
+        title: Not Found
+        status: 404
+        detail: Paragraph not found
+  headers:
+    X-RateLimit-Reset:
+      description: The time the window resets, in Unix seconds.
+      schema:
+        type: integer
+      example: 1791152213
+    X-RateLimit-Limit:
+      description: The number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 200
+    X-RateLimit-Remaining:
+      description: The number of requests left in the current window.
+      schema:
+        type: integer
+      example: 199

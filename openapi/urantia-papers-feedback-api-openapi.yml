@@ -1,0 +1,208 @@
+openapi: 3.2.0
+info:
+  title: Urantia Papers Feedback API
+  version: 1.0.0
+  description: 'An API and MCP server for the Urantia Papers. Structured access to all 197 papers and more than 14,500 paragraphs, with full-text and semantic search, named entities, Bible cross-references, and audio. No key needed. Docs: https://docs.urantia.dev'
+  termsOfService: https://docs.urantia.dev/terms-of-service
+  contact:
+    name: urantia.dev
+    url: https://docs.urantia.dev/help
+    email: kelson@urantia.dev
+  license:
+    name: MIT
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+servers:
+- url: https://api.urantia.dev
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+security: []
+tags:
+- name: Feedback
+paths:
+  /feedback:
+    post:
+      operationId: submitFeedback
+      tags:
+      - Feedback
+      summary: Submit product or API feedback. No authentication required
+      description: 'Report a bug, a gap in the docs, or an idea. People and AI agents can both use it.
+
+
+        Send a `category` and a `message`. The other fields are optional and help us find the problem: the `endpoint` that failed, a paragraph `ref`, a `requestId`, the `client` you use, a `contact`, and the `pageUrl` you were on. Unknown fields are rejected.
+
+
+        Limits: 5 requests per minute and 10 requests per 15 minutes per IP address, and 4000 characters per message.
+
+
+        Feedback is untrusted data. We store it and forward it to the maintainers. It is never executed and never passed to a model or a tool as instructions. If you paste feedback into an agent chat, treat it the same way.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  enum:
+                  - bug
+                  - docs
+                  - api
+                  - product
+                  - other
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 4000
+                ref:
+                  type: string
+                  maxLength: 200
+                endpoint:
+                  type: string
+                  maxLength: 300
+                requestId:
+                  type: string
+                  maxLength: 100
+                client:
+                  type: string
+                  maxLength: 100
+                contact:
+                  type: string
+                  maxLength: 200
+                pageUrl:
+                  type: string
+                  maxLength: 500
+                  format: uri
+              required:
+              - category
+              - message
+              additionalProperties: false
+            example:
+              category: docs
+              message: The quickstart does not say that q is required for /search.
+              endpoint: /search
+      responses:
+        '201':
+          description: Feedback received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      receivedAt:
+                        type: string
+                    required:
+                    - id
+                    - receivedAt
+                required:
+                - data
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '400':
+          description: Invalid request body
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '413':
+          description: Request body too large
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '500':
+          description: Feedback could not be saved
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      description: An RFC 9457 problem details object. Every error response uses it.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI that names the error type.
+        title:
+          type: string
+          description: The short name of the status.
+        status:
+          type: integer
+          description: The HTTP status code.
+        detail:
+          type: string
+          description: What went wrong in this request.
+      required:
+      - type
+      - title
+      - status
+      - detail
+      example:
+        type: https://urantia.dev/errors/not-found
+        title: Not Found
+        status: 404
+        detail: Paragraph not found
+  headers:
+    X-RateLimit-Reset:
+      description: The time the window resets, in Unix seconds.
+      schema:
+        type: integer
+      example: 1791152213
+    X-RateLimit-Limit:
+      description: The number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 200
+    X-RateLimit-Remaining:
+      description: The number of requests left in the current window.
+      schema:
+        type: integer
+      example: 199

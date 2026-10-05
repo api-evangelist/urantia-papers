@@ -1,0 +1,766 @@
+openapi: 3.2.0
+info:
+  title: Urantia Papers API
+  version: 1.0.0
+  description: 'An API and MCP server for the Urantia Papers. Structured access to all 197 papers and more than 14,500 paragraphs, with full-text and semantic search, named entities, Bible cross-references, and audio. No key needed. Docs: https://docs.urantia.dev'
+  termsOfService: https://docs.urantia.dev/terms-of-service
+  contact:
+    name: urantia.dev
+    url: https://docs.urantia.dev/help
+    email: kelson@urantia.dev
+  license:
+    name: MIT
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+servers:
+- url: https://api.urantia.dev
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+security: []
+tags:
+- name: Papers
+paths:
+  /papers:
+    get:
+      operationId: listPapers
+      tags:
+      - Papers
+      summary: List all 197 papers
+      description: 'Returns metadata for all papers in the Urantia Book, ordered by paper number.
+
+
+        Use `?include=topEntities` to attach a per-paper aggregate of the most-referenced named entities (beings, places, concepts, etc.) sorted by citation frequency.'
+      parameters:
+      - schema:
+          type: string
+        required: false
+        name: include
+        in: query
+      - schema:
+          type: string
+          enum:
+          - default
+          - rag
+          default: default
+        required: false
+        name: format
+        in: query
+      - schema:
+          type: string
+          enum:
+          - eng
+          - es
+          - fr
+          - pt
+          - de
+          - ko
+          default: eng
+        required: false
+        name: lang
+        in: query
+      responses:
+        '200':
+          description: List of all papers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        partId:
+                          type: string
+                        title:
+                          type: string
+                        sortId:
+                          type: string
+                        labels:
+                          type:
+                          - array
+                          - 'null'
+                          items:
+                            type: string
+                        video:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties:
+                            type: object
+                            properties:
+                              mp4:
+                                type: string
+                              thumbnail:
+                                type: string
+                              duration:
+                                type: number
+                            required:
+                            - mp4
+                            - thumbnail
+                            - duration
+                        topEntities:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              type:
+                                type: string
+                              count:
+                                type: integer
+                                minimum: 0
+                            required:
+                            - id
+                            - name
+                            - type
+                            - count
+                      required:
+                      - id
+                      - partId
+                      - title
+                      - sortId
+                      - labels
+                      - video
+                required:
+                - data
+              example:
+                data:
+                - id: '0'
+                  partId: '0'
+                  title: Foreword
+                  sortId: 0.000.000.000
+                  labels:
+                  - Theology
+                  - Cosmology
+                  video:
+                    nova:
+                      mp4: https://video.urantiahub.com/tts-1-hd-nova-0.mp4
+                      thumbnail: https://video.urantiahub.com/thumbnail-0.png
+                      duration: 3262
+                - id: '1'
+                  partId: '1'
+                  title: The Universal Father
+                  sortId: 1.001.000.000
+                  labels:
+                  - Spirituality
+                  - Theology
+                  video:
+                    nova:
+                      mp4: https://video.urantiahub.com/tts-1-hd-nova-1.mp4
+                      thumbnail: https://video.urantiahub.com/thumbnail-1.png
+                      duration: 2336
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+  /papers/{id}:
+    get:
+      operationId: getPaper
+      tags:
+      - Papers
+      summary: Get a paper with all its paragraphs
+      description: 'Returns a single paper''s metadata along with all its paragraphs in order. Paper IDs range from 0 (Foreword) to 196.
+
+
+        Use `?include=entities` to include typed entity mentions in each paragraph.'
+      parameters:
+      - schema:
+          type: string
+        required: true
+        name: id
+        in: path
+      - schema:
+          type: string
+        required: false
+        name: include
+        in: query
+      - schema:
+          type: string
+          enum:
+          - default
+          - rag
+          default: default
+        required: false
+        name: format
+        in: query
+      - schema:
+          type: string
+          enum:
+          - eng
+          - es
+          - fr
+          - pt
+          - de
+          - ko
+          default: eng
+        required: false
+        name: lang
+        in: query
+      responses:
+        '200':
+          description: Paper with paragraphs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      paper:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          partId:
+                            type: string
+                          title:
+                            type: string
+                          sortId:
+                            type: string
+                          labels:
+                            type:
+                            - array
+                            - 'null'
+                            items:
+                              type: string
+                          video:
+                            type:
+                            - object
+                            - 'null'
+                            additionalProperties:
+                              type: object
+                              properties:
+                                mp4:
+                                  type: string
+                                thumbnail:
+                                  type: string
+                                duration:
+                                  type: number
+                              required:
+                              - mp4
+                              - thumbnail
+                              - duration
+                          topEntities:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                count:
+                                  type: integer
+                                  minimum: 0
+                              required:
+                              - id
+                              - name
+                              - type
+                              - count
+                        required:
+                        - id
+                        - partId
+                        - title
+                        - sortId
+                        - labels
+                        - video
+                      paragraphs:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            standardReferenceId:
+                              type: string
+                            sortId:
+                              type: string
+                            paperId:
+                              type: string
+                            sectionId:
+                              type:
+                              - string
+                              - 'null'
+                            partId:
+                              type: string
+                            paperTitle:
+                              type: string
+                            sectionTitle:
+                              type:
+                              - string
+                              - 'null'
+                            paragraphId:
+                              type: string
+                            text:
+                              type: string
+                            htmlText:
+                              type: string
+                            language:
+                              type: string
+                            labels:
+                              type:
+                              - array
+                              - 'null'
+                              items:
+                                type: string
+                            audio:
+                              type:
+                              - object
+                              - 'null'
+                              additionalProperties:
+                                type: object
+                                additionalProperties:
+                                  type: object
+                                  properties:
+                                    format:
+                                      type: string
+                                    url:
+                                      type: string
+                                    duration:
+                                      type: number
+                                    bitrate:
+                                      type: number
+                                    fileSize:
+                                      type: number
+                                  required:
+                                  - format
+                                  - url
+                            entities:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  type:
+                                    type: string
+                                    enum:
+                                    - being
+                                    - place
+                                    - order
+                                    - race
+                                    - religion
+                                    - concept
+                                required:
+                                - id
+                                - name
+                                - type
+                            bibleParallels:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  chunkId:
+                                    type: string
+                                  reference:
+                                    type: string
+                                  bookCode:
+                                    type: string
+                                  chapter:
+                                    type: integer
+                                  verseStart:
+                                    type: integer
+                                  verseEnd:
+                                    type: integer
+                                  text:
+                                    type: string
+                                  similarity:
+                                    type: number
+                                  rank:
+                                    type: integer
+                                  source:
+                                    type: string
+                                  embeddingModel:
+                                    type: string
+                                required:
+                                - chunkId
+                                - reference
+                                - bookCode
+                                - chapter
+                                - verseStart
+                                - verseEnd
+                                - text
+                                - similarity
+                                - rank
+                                - source
+                                - embeddingModel
+                            urantiaParallels:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  standardReferenceId:
+                                    type: string
+                                  paperId:
+                                    type: string
+                                  paperTitle:
+                                    type: string
+                                  sectionTitle:
+                                    type:
+                                    - string
+                                    - 'null'
+                                  text:
+                                    type: string
+                                  similarity:
+                                    type: number
+                                  rank:
+                                    type: integer
+                                  source:
+                                    type: string
+                                  embeddingModel:
+                                    type: string
+                                required:
+                                - id
+                                - standardReferenceId
+                                - paperId
+                                - paperTitle
+                                - sectionTitle
+                                - text
+                                - similarity
+                                - rank
+                                - source
+                                - embeddingModel
+                          required:
+                          - id
+                          - standardReferenceId
+                          - sortId
+                          - paperId
+                          - sectionId
+                          - partId
+                          - paperTitle
+                          - sectionTitle
+                          - paragraphId
+                          - text
+                          - htmlText
+                          - labels
+                          - audio
+                    required:
+                    - paper
+                    - paragraphs
+                required:
+                - data
+              example:
+                data:
+                  paper:
+                    id: '2'
+                    partId: '1'
+                    title: The Nature of God
+                    sortId: 1.002.000.000
+                    labels:
+                    - Spirituality
+                    - Theology
+                    video:
+                      nova:
+                        mp4: https://video.urantiahub.com/tts-1-hd-nova-2.mp4
+                        thumbnail: https://video.urantiahub.com/thumbnail-2.png
+                        duration: 2324
+                  paragraphs:
+                  - id: 1:2.0.1
+                    standardReferenceId: '2:0.1'
+                    sortId: 1.002.000.001
+                    paperId: '2'
+                    sectionId: '0'
+                    partId: '1'
+                    paperTitle: The Nature of God
+                    sectionTitle: null
+                    paragraphId: '1'
+                    text: INASMUCH as man’s highest possible concept of God is embraced within the human idea and ideal of a primal and infinite personality, it is permissible, and may prove helpful, to study certain characteristics of the divine nature which constitute the character of Deity. The nature of God can best be understood by the revelation of the Father which Michael of Nebadon unfolded in his manifold teachings and in his superb mortal life in the flesh. The divine nature can also be better understood by man if he regards himself as a child of God and looks up to the Paradise Creator as a true spiritual Father.
+                    htmlText: <span class="urantia-dev-pb-0">INASMUCH as man’s highest possible concept of God is embraced within the human idea and ideal of a primal and infinite personality, it is permissible, and may prove helpful, to study certain characteristics of the divine nature which constitute the character of Deity. The nature of God can best be understood by the revelation of the Father which Michael of Nebadon unfolded in his manifold teachings and in his superb mortal life in the flesh. The divine nature can also be better understood by man if he regards himself as a child of God and looks up to the Paradise Creator as a true spiritual Father.</span>
+                    labels: []
+                    audio:
+                      tts-1-hd:
+                        nova:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:2.0.1.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 38.1
+                          fileSize: 762240
+                        onyx:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/onyx/tts-1-hd-onyx-1:2.0.1.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 37.9
+                          fileSize: 757440
+                      gpt-4o-mini-tts:
+                        cedar:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:2.0.1.mp3
+                          format: mp3
+                          bitrate: 192
+                          duration: 38.8
+                          fileSize: 931674
+                  - id: 1:2.0.2
+                    standardReferenceId: '2:0.2'
+                    sortId: 1.002.000.002
+                    paperId: '2'
+                    sectionId: '0'
+                    partId: '1'
+                    paperTitle: The Nature of God
+                    sectionTitle: null
+                    paragraphId: '2'
+                    text: The nature of God can be studied in a revelation of supreme ideas, the divine character can be envisaged as a portrayal of supernal ideals, but the most enlightening and spiritually edifying of all revelations of the divine nature is to be found in the comprehension of the religious life of Jesus of Nazareth, both before and after his attainment of full consciousness of divinity. If the incarnated life of Michael is taken as the background of the revelation of God to man, we may attempt to put in human word symbols certain ideas and ideals concerning the divine nature which may possibly contribute to a further illumination and unification of the human concept of the nature and the character of the personality of the Universal Father.
+                    htmlText: <span class="urantia-dev-pb-0">The nature of God can be studied in a revelation of supreme ideas, the divine character can be envisaged as a portrayal of supernal ideals, but the most enlightening and spiritually edifying of all revelations of the divine nature is to be found in the comprehension of the religious life of Jesus of Nazareth, both before and after his attainment of full consciousness of divinity. If the incarnated life of Michael is taken as the background of the revelation of God to man, we may attempt to put in human word symbols certain ideas and ideals concerning the divine nature which may possibly contribute to a further illumination and unification of the human concept of the nature and the character of the personality of the Universal Father.</span>
+                    labels: []
+                    audio:
+                      tts-1-hd:
+                        nova:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/nova/tts-1-hd-nova-1:2.0.2.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 45.9
+                          fileSize: 918240
+                        onyx:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/onyx/tts-1-hd-onyx-1:2.0.2.mp3
+                          format: mp3
+                          bitrate: 160
+                          duration: 46.2
+                          fileSize: 924480
+                      gpt-4o-mini-tts:
+                        cedar:
+                          url: https://cdn.urantia.dev/audio/eng/paragraphs/cedar/gpt-4o-mini-tts-cedar-1:2.0.2.mp3
+                          format: mp3
+                          bitrate: 192
+                          duration: 45
+                          fileSize: 1080258
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '404':
+          description: Paper not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+  /papers/{id}/sections:
+    get:
+      operationId: getPaperSections
+      tags:
+      - Papers
+      summary: Get sections within a paper
+      description: Returns all sections for a given paper, ordered by section number.
+      parameters:
+      - schema:
+          type: string
+        required: true
+        name: id
+        in: path
+      responses:
+        '200':
+          description: List of sections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        paperId:
+                          type: string
+                        sectionId:
+                          type: string
+                        title:
+                          type:
+                          - string
+                          - 'null'
+                        globalId:
+                          type: string
+                        sortId:
+                          type: string
+                      required:
+                      - id
+                      - paperId
+                      - sectionId
+                      - title
+                      - globalId
+                      - sortId
+                required:
+                - data
+              example:
+                data:
+                - id: '2.0'
+                  paperId: '2'
+                  sectionId: '0'
+                  title: null
+                  globalId: 1:2.0.-
+                  sortId: 1.002.000.000
+                - id: '2.1'
+                  paperId: '2'
+                  sectionId: '1'
+                  title: The Infinity of God
+                  globalId: 1:2.1.-
+                  sortId: 1.002.001.000
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '404':
+          description: Paper not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too many requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      description: An RFC 9457 problem details object. Every error response uses it.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI that names the error type.
+        title:
+          type: string
+          description: The short name of the status.
+        status:
+          type: integer
+          description: The HTTP status code.
+        detail:
+          type: string
+          description: What went wrong in this request.
+      required:
+      - type
+      - title
+      - status
+      - detail
+      example:
+        type: https://urantia.dev/errors/not-found
+        title: Not Found
+        status: 404
+        detail: Paragraph not found
+  headers:
+    X-RateLimit-Reset:
+      description: The time the window resets, in Unix seconds.
+      schema:
+        type: integer
+      example: 1791152213
+    X-RateLimit-Limit:
+      description: The number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 200
+    X-RateLimit-Remaining:
+      description: The number of requests left in the current window.
+      schema:
+        type: integer
+      example: 199

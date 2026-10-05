@@ -1,6 +1,6 @@
 aid: urantia-papers
 name: Urantia Papers
-description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
+description: "A read-only REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible. The content endpoints are read-only and need no key."
 url: https://urantia.dev
 deliveryModel:
   model: unknown
@@ -27,7 +27,7 @@ accessModel:
   method: derived
 specificationVersion: '0.23'
 created: '2026-05-28'
-modified: '2026-05-28'
+modified: '2026-10-05'
 x-source: public-apis/public-apis
 x-category: "Books"
 x-tier: 3
@@ -37,14 +37,229 @@ tags:
   - Public APIs
   - A2A
 apis:
-  - name: Urantia Papers
-    description: "Full-text + semantic search across the Urantia Papers, with audio narration, entities, translations"
-    humanURL: https://urantia.dev
-    tags:
-      - Books
-    properties:
-      - type: Documentation
-        url: https://urantia.dev
+- name: Urantia Papers
+  description: >-
+    A read-only REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible. The content endpoints are read-only and need no key.
+  humanURL: https://docs.urantia.dev
+  baseURL: https://api.urantia.dev
+  tags:
+  - Books
+  properties:
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev
+  - type: APIReference
+    url: https://docs.urantia.dev/api-reference/introduction
+  - type: GettingStarted
+    url: https://docs.urantia.dev/quickstart
+  - type: Authentication
+    url: https://docs.urantia.dev/api-reference/introduction#authentication
+  - type: RateLimits
+    url: https://docs.urantia.dev/api-reference/introduction#rate-limiting
+  - type: MCPServer
+    url: mcp/urantia-papers-mcp.yml
+  - type: MCPServer
+    name: MCP endpoint (provider-hosted, streamable HTTP)
+    url: https://api.urantia.dev/mcp
+  - type: SDKs
+    url: https://docs.urantia.dev/sdks/overview
+- aid: urantia-papers:urantia-papers-audio-api
+  name: Urantia Papers Audio API
+  description: The Audio API from Urantia Papers — 1 operation(s) for audio.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Audio
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-audio-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-bible-api
+  name: Urantia Papers Bible API
+  description: The Bible API from Urantia Papers — 6 operation(s) for bible.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Bible
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-bible-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-citation-api
+  name: Urantia Papers Citation API
+  description: The Citation API from Urantia Papers — 1 operation(s) for citation.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Citation
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-citation-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-embeddings-api
+  name: Urantia Papers Embeddings API
+  description: The Embeddings API from Urantia Papers — 2 operation(s) for embeddings.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Embeddings
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-embeddings-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-entities-api
+  name: Urantia Papers Entities API
+  description: The Entities API from Urantia Papers — 3 operation(s) for entities.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Entities
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-entities-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-feedback-api
+  name: Urantia Papers Feedback API
+  description: The Feedback API from Urantia Papers — 1 operation(s) for feedback.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Feedback
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-feedback-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-languages-api
+  name: Urantia Papers Languages API
+  description: The Languages API from Urantia Papers — 1 operation(s) for languages.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Languages
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-languages-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-og-images-api
+  name: Urantia Papers OG Images API
+  description: The OG Images API from Urantia Papers — 1 operation(s) for og images.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - OG Images
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-og-images-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-papers-api
+  name: Urantia Papers Papers API
+  description: The Papers API from Urantia Papers — 3 operation(s) for papers.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Papers
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-papers-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-paragraphs-api
+  name: Urantia Papers Paragraphs API
+  description: The Paragraphs API from Urantia Papers — 3 operation(s) for paragraphs.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Paragraphs
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-paragraphs-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-search-api
+  name: Urantia Papers Search API
+  description: The Search API from Urantia Papers — 2 operation(s) for search.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Search
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-search-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-table-of-contents-api
+  name: Urantia Papers Table of Contents API
+  description: The Table of Contents API from Urantia Papers — 1 operation(s) for table of contents.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Table of Contents
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-table-of-contents-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
+- aid: urantia-papers:urantia-papers-tools-api
+  name: Urantia Papers Tools API
+  description: The Tools API from Urantia Papers — 2 operation(s) for tools.
+  humanURL: https://docs.urantia.dev/api-reference/introduction
+  baseURL: https://api.urantia.dev
+  tags:
+  - Tools
+  properties:
+  - type: OpenAPI
+    url: openapi/urantia-papers-tools-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.urantia.dev/openapi.json
+  - type: Documentation
+    url: https://docs.urantia.dev/api-reference/introduction
 common:
   - type: AgentCard
     url: a2a/urantia-papers-a2a.yml
@@ -57,7 +272,33 @@ common:
   - type: PublicAPIsListing
     url: https://github.com/public-apis/public-apis
   - type: Support
-    url: https://urantia.dev/support
+    url: https://docs.urantia.dev/help
+  - type: Documentation
+    url: https://docs.urantia.dev
+  - type: ChangeLog
+    url: https://docs.urantia.dev/changelog
+  - type: StatusPage
+    url: https://status.urantia.dev
+  - type: TermsOfService
+    url: https://docs.urantia.dev/terms-of-service
+  - type: PrivacyPolicy
+    url: https://docs.urantia.dev/privacy-policy
+  - type: License
+    url: https://github.com/urantia-hub/urantia-dev-api/blob/main/LICENSE
+  - type: GitHubOrganization
+    url: https://github.com/urantia-hub
+  - type: GitHubRepository
+    url: https://github.com/urantia-hub/urantia-dev-api
+  - type: LLMsTxt
+    url: https://docs.urantia.dev/llms.txt
+  - type: AgentSkills
+    url: https://github.com/urantia-hub/urantia-papers-claude-code-plugin/tree/main/skills
+  - type: APICatalog
+    url: https://api.urantia.dev/.well-known/api-catalog
+  - type: MCPServerCard
+    url: https://api.urantia.dev/.well-known/mcp/server-card.json
+  - type: ContentSignal
+    url: https://api.urantia.dev/robots.txt
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
@@ -68,3 +309,23 @@ x-a2a:
   grade: "conformant"
   protocol_version: "0.3"
   control: 404
+x-correction-request:
+  requested: '2026-10-05'
+  source:
+  - https://github.com/api-evangelist/urantia-papers/pull/1
+  request: Add the public OpenAPI 3.1 (https://api.urantia.dev/openapi.json, base https://api.urantia.dev), move docs
+    to https://docs.urantia.dev, and add auth/rate-limit sections, the MCP server, Postman collection, SDKs, support,
+    changelog, status, terms, privacy, license, GitHub org/repo, llms.txt, agent skills, the RFC 9727 catalog and the
+    robots.txt Content-Signal line. The API is public, keyless, has no paid tier, and the code is MIT.
+  ledger:
+  - urantia-papers-11ebff0d
+  - urantia-papers-26a50a7b (apis.io Add-form submission 2026-10-03, same provider)
+  applied: '2026-10-05'
+  applied_note: Applied by hand; every URL verified 200 on 2026-10-05 with 404 controls on docs. and api. hosts. OpenAPI
+    3.1 (Urantia Papers API 1.0.0, 27 paths / 29 operations, MIT, keyless) saved verbatim to
+    openapi/_original/urantia-papers-openapi.json and split/standardized into 13 per-tag APIs. MCP server at
+    https://api.urantia.dev/mcp probed live (initialize + tools/list, no credentials, 19 tools) and recorded in
+    mcp/urantia-papers-mcp.yml, replacing the earlier record of the docs-platform search MCP at urantia.dev/mcp (now a
+    308). Common pointers added as requested plus the MCP server card from the api-catalog. NOT applied - the Postman
+    collection (https://www.postman.com/urantia-dev/urantia-papers) - the page is a client-rendered shell and no
+    first-party page links it, so it could not be verified. The PR was not merged.
