@@ -4,9 +4,10 @@ description: "A read-only REST API and MCP server for the Urantia Papers: papers
 url: https://urantia.dev
 deliveryModel:
   model: unknown
-  open_source: false
+  license: MIT
+  open_source: true
   commercial: false
-  callable_host: false
+  callable_host: true
   label: Delivery model not determined — needs a product licence on record
   confidence: low
   source:
@@ -14,12 +15,12 @@ deliveryModel:
   generated: '2026-08-28'
   method: derived
 accessModel:
-  pricing: unknown
-  onboarding: unknown
+  pricing: free
+  onboarding: open
   trial: false
-  try_now: false
-  public: false
-  label: Unknown
+  try_now: true
+  public: true
+  label: Free · Open access
   confidence: low
   source:
   - security
