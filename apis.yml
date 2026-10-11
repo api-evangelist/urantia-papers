@@ -1,6 +1,6 @@
 aid: urantia-papers
 name: Urantia Papers
-description: "A read-only REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible. The content endpoints are read-only and need no key."
+description: "A REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible and to public domain texts of other world religions. The MCP server covers the Papers and the Bible. The content endpoints are read-only and need no key."
 url: https://urantia.dev
 deliveryModel:
   model: unknown
@@ -40,7 +40,7 @@ tags:
 apis:
 - name: Urantia Papers
   description: >-
-    A read-only REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible. The content endpoints are read-only and need no key.
+    A REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to the World English Bible and to public domain texts of other world religions. The MCP server covers the Papers and the Bible. The content endpoints are read-only and need no key.
   humanURL: https://docs.urantia.dev
   baseURL: https://api.urantia.dev
   tags:
