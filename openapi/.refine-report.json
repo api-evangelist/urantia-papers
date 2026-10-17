@@ -1,0 +1,57 @@
+{
+  "provider": "urantia-papers",
+  "sources": [
+    "_original/urantia-papers-openapi.json"
+  ],
+  "outputs": [
+    "urantia-papers-audio-api-openapi.yml",
+    "urantia-papers-bible-api-openapi.yml",
+    "urantia-papers-citation-api-openapi.yml",
+    "urantia-papers-embeddings-api-openapi.yml",
+    "urantia-papers-entities-api-openapi.yml",
+    "urantia-papers-feedback-api-openapi.yml",
+    "urantia-papers-languages-api-openapi.yml",
+    "urantia-papers-og-images-api-openapi.yml",
+    "urantia-papers-papers-api-openapi.yml",
+    "urantia-papers-paragraphs-api-openapi.yml",
+    "urantia-papers-search-api-openapi.yml",
+    "urantia-papers-table-of-contents-api-openapi.yml",
+    "urantia-papers-tools-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "urantia-papers-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "urantia-papers-openapi.json: declared missing tag: Audio",
+    "urantia-papers-openapi.json: declared missing tag: Bible",
+    "urantia-papers-openapi.json: declared missing tag: Citation",
+    "urantia-papers-openapi.json: declared missing tag: Embeddings",
+    "urantia-papers-openapi.json: declared missing tag: Entities",
+    "urantia-papers-openapi.json: declared missing tag: Feedback",
+    "urantia-papers-openapi.json: declared missing tag: Languages",
+    "urantia-papers-openapi.json: declared missing tag: OG Images",
+    "urantia-papers-openapi.json: declared missing tag: Papers",
+    "urantia-papers-openapi.json: declared missing tag: Paragraphs",
+    "urantia-papers-openapi.json: declared missing tag: Search",
+    "urantia-papers-openapi.json: declared missing tag: Table of Contents",
+    "urantia-papers-openapi.json: declared missing tag: Tools",
+    "apis.yml register: written (+0 apis, 13 total)"
+  ],
+  "skipped": [
+    "urantia-papers-audio-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-bible-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-citation-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-embeddings-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-entities-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-feedback-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-languages-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-og-images-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-papers-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-paragraphs-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-search-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-table-of-contents-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "urantia-papers-tools-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

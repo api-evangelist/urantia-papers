@@ -122,6 +122,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
 components:
+  headers:
+    X-RateLimit-Remaining:
+      description: The number of requests left in the current window.
+      schema:
+        type: integer
+      example: 199
+    X-RateLimit-Reset:
+      description: The time the window resets, in Unix seconds.
+      schema:
+        type: integer
+      example: 1791152213
+    X-RateLimit-Limit:
+      description: The number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 200
   schemas:
     ProblemDetails:
       type: object
@@ -150,19 +166,3 @@ components:
         title: Not Found
         status: 404
         detail: Paragraph not found
-  headers:
-    X-RateLimit-Reset:
-      description: The time the window resets, in Unix seconds.
-      schema:
-        type: integer
-      example: 1791152213
-    X-RateLimit-Limit:
-      description: The number of requests allowed in the current window.
-      schema:
-        type: integer
-      example: 200
-    X-RateLimit-Remaining:
-      description: The number of requests left in the current window.
-      schema:
-        type: integer
-      example: 199

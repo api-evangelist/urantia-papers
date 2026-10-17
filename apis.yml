@@ -38,34 +38,6 @@ tags:
   - Public APIs
   - A2A
 apis:
-- name: Urantia Papers
-  description: >-
-    A read-only REST API and MCP server for the Urantia Papers: papers, sections, and paragraphs by reference, keyword and semantic search, named entities, and cross-references to public domain texts of the world's religions. The MCP server covers the Papers and the Bible for now. The content endpoints are read-only and need no key.
-  humanURL: https://docs.urantia.dev
-  baseURL: https://api.urantia.dev
-  tags:
-  - Books
-  properties:
-  - type: OpenAPI
-    name: OpenAPI (provider-hosted)
-    url: https://api.urantia.dev/openapi.json
-  - type: Documentation
-    url: https://docs.urantia.dev
-  - type: APIReference
-    url: https://docs.urantia.dev/api-reference/introduction
-  - type: GettingStarted
-    url: https://docs.urantia.dev/quickstart
-  - type: Authentication
-    url: https://docs.urantia.dev/api-reference/introduction#authentication
-  - type: RateLimits
-    url: https://docs.urantia.dev/api-reference/introduction#rate-limiting
-  - type: MCPServer
-    url: mcp/urantia-papers-mcp.yml
-  - type: MCPServer
-    name: MCP endpoint (provider-hosted, streamable HTTP)
-    url: https://api.urantia.dev/mcp
-  - type: SDKs
-    url: https://docs.urantia.dev/sdks/overview
 - aid: urantia-papers:urantia-papers-audio-api
   name: Urantia Papers Audio API
   description: The Audio API from Urantia Papers — 1 operation(s) for audio.
@@ -262,6 +234,10 @@ apis:
   - type: Documentation
     url: https://docs.urantia.dev/api-reference/introduction
 common:
+  - type: MCPServer
+    url: mcp/urantia-papers-mcp.yml
+  - type: MCPServer
+    url: https://api.urantia.dev/mcp
   - type: AgentCard
     url: a2a/urantia-papers-a2a.yml
     name: A2A Agent Card
